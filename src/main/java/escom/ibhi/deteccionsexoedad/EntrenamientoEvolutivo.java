@@ -5,11 +5,14 @@
  */
 package escom.ibhi.deteccionsexoedad;
 
+import escom.ibhi.resource.Utileria.Util;
 import org.encog.ml.MLMethod;
 import org.encog.ml.TrainingImplementationType;
+import org.encog.ml.data.MLDataPair;
 import org.encog.ml.data.MLDataSet;
 import org.encog.ml.train.BasicTraining;
 import org.encog.neural.flat.FlatNetwork;
+import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.ContainsFlat;
 import org.encog.neural.networks.training.Train;
 import org.encog.neural.networks.training.propagation.TrainingContinuation;
@@ -42,8 +45,27 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
     */
     @Override
     public void iteration() {
+        BasicNetwork bd;
+        double[] salida = new double[getTraining().getIdealSize()];
+        for(MLDataPair par : getTraining()){
+            currentFlatNetwork.compute(par.getInput().getData(), salida);
+            setError(caclError(salida, par.getIdeal().getData()));
+        }
         setIteration(getIteration()+1);
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    public double caclError(double[] salidas, double[] ideales){
+        double error = 0.0;
+        double sumaPesos = 0.0;
+        for(int i = 0; i < salidas.length; i++){
+            error += ideales[i] - (ideales[i])*Math.log(salidas[i]) - (1-ideales[i])*Math.log(ideales[i]);
+        }
+        for(int i = 0; i< currentFlatNetwork.getWeights().length; i++)
+            sumaPesos += currentFlatNetwork.getWeights()[i];
+        
+        error += sumaPesos/currentFlatNetwork.getWeights().length*Double.parseDouble(Util.getPropCfgEE("CONS_PESOS_PEQUENIOS"));
+        
+        return error;
     }
     
     /*
