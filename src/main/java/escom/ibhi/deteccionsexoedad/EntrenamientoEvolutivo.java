@@ -34,23 +34,28 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
         setTraining(training);
         setIteration(0);
         setError(0);
-        //Fantal especifiar las estrategias a utilizar
+        //Falta especifiar las estrategias a utilizar
     }
+    
     /*
     *   Funcion que efecuta una iteración del entrenamiento de la red neuronal
     */
     @Override
     public void iteration() {
+        setIteration(getIteration()+1);
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     /*
-    *   Funcion para verificar si el entrenamiento convergio o si ocurrio algun
-    *   tipo de error
+    *   Funcion para verificar si el proceso de entrenamiento de la red
+    *   neuronal puede ser pausado, para despues coontinuar
+    *   true sí se puede pausar el entrenamiento
     */
     @Override
     public boolean canContinue() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //Regresando false siempre, numca se ocupa la funcionalidad de pausar
+        //el entrenamiento para luego reanudar
+        return false;
     }
     
     /*
