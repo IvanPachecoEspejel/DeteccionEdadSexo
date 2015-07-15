@@ -9,10 +9,13 @@
  * @author ivan
  */
 import escom.ibhi.resource.Utileria.Util;
+import java.util.Random;
 public class Pruebas {
     
     public static void main(String args[]){
-        System.out.println(Util.getPropCfgEE("CONS_EVOLUCION_DIV"));
+        Random r = new Random();
+        for(int i = 0; i<10; i++)
+            System.out.println(i+": "+r.nextGaussian());
     }
     
 }

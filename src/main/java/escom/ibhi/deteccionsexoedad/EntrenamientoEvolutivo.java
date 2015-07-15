@@ -6,13 +6,13 @@
 package escom.ibhi.deteccionsexoedad;
 
 import escom.ibhi.resource.Utileria.Util;
+import java.util.logging.Logger;
 import org.encog.ml.MLMethod;
 import org.encog.ml.TrainingImplementationType;
 import org.encog.ml.data.MLDataPair;
 import org.encog.ml.data.MLDataSet;
 import org.encog.ml.train.BasicTraining;
 import org.encog.neural.flat.FlatNetwork;
-import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.ContainsFlat;
 import org.encog.neural.networks.training.Train;
 import org.encog.neural.networks.training.propagation.TrainingContinuation;
@@ -23,9 +23,15 @@ import org.encog.neural.networks.training.propagation.TrainingContinuation;
  */
 public class EntrenamientoEvolutivo extends BasicTraining implements Train{
     
+    private static final Logger log = Logger.getLogger(EntrenamientoEvolutivo.class.getName());
+    
     //Contiene la estructura de la red neuronal
     private final FlatNetwork currentFlatNetwork;
+    private final Poblacion pob;
     
+    private final double[] salidaS = null;
+    private Sujeto sujetoM;
+    private double errS;
     /*
     *   @training : Contiene los valores de entrada y los valores de salida 
     *               que se deberian de obtener
@@ -37,6 +43,10 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
         setTraining(training);
         setIteration(0);
         setError(0);
+        pob = new Poblacion((int)Util.getPropCfgEE("TAM_POBLACION"), currentFlatNetwork.getEncodeLength());
+        for(Sujeto s : pob.getSujetos()){
+            evaluarSujeto(s);
+        }
         //Falta especifiar las estrategias a utilizar
     }
     
@@ -45,27 +55,44 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
     */
     @Override
     public void iteration() {
-        BasicNetwork bd;
-        double[] salida = new double[getTraining().getIdealSize()];
-        for(MLDataPair par : getTraining()){
-            currentFlatNetwork.compute(par.getInput().getData(), salida);
-            setError(caclError(salida, par.getIdeal().getData()));
+        for(int i = 0; i< pob.getTamPob(); i++){
+            sujetoM = pob.mutaSujeto(i);
+            pob.addIteracionAt(i);
+            evaluarSujeto(sujetoM);
+            if(pob.getSujetoAt(i).getError() > sujetoM.getError()){
+                pob.addExitoAt(i);
+                pob.setSujetoAt(sujetoM, i);
+            }
+            if(getIteration() % ((int)Util.alphaFrecAct) == 0){
+                pob.modificaAlpha(i);
+            }
         }
         setIteration(getIteration()+1);
     }
     
-    public double caclError(double[] salidas, double[] ideales){
+    public double caclError(final double[] salidas,final double[] ideales,final double[] pesos){
         double error = 0.0;
         double sumaPesos = 0.0;
         for(int i = 0; i < salidas.length; i++){
             error += ideales[i] - (ideales[i])*Math.log(salidas[i]) - (1-ideales[i])*Math.log(ideales[i]);
         }
-        for(int i = 0; i< currentFlatNetwork.getWeights().length; i++)
-            sumaPesos += currentFlatNetwork.getWeights()[i];
+        for(int i = 0; i< pesos.length; i++)
+            sumaPesos += pesos[i];
         
-        error += sumaPesos/currentFlatNetwork.getWeights().length*Double.parseDouble(Util.getPropCfgEE("CONS_PESOS_PEQUENIOS"));
+        error = Math.abs(error);
+        error += sumaPesos/pesos.length*(Double)(Util.getPropCfgEE("CONS_PESOS_PEQUENIOS"));
         
         return error;
+    }
+    
+    public final void evaluarSujeto(Sujeto s){
+        currentFlatNetwork.setWeights(s.getCromosoma());
+        errS = 0;
+        for(MLDataPair par : getTraining()){
+            currentFlatNetwork.compute(par.getInput().getData(), salidaS);
+            errS += caclError(salidaS, par.getIdealArray(), s.getCromosoma());
+        }
+        s.setError(errS);
     }
     
     /*
