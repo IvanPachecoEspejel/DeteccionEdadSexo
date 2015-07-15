@@ -76,6 +76,8 @@ public class Poblacion {
             }
         }
         log.log(Level.INFO, "Nvo ALPHA: {0}", alphas[indexSujeto]);
+        exitos[indexSujeto] = 0;
+        iteraciones[indexSujeto] = 0;
     }
     
     
