@@ -38,23 +38,31 @@ public class Util {
         } catch (IOException ex) {
             log.log(Level.SEVERE, null, ex);
         }
-        alpha = (Double)getPropCfgEE("ALPHA");
-        alphaC = (Double)getPropCfgEE("ALPHA_C");
-        alphaMax = (Double)getPropCfgEE("ALPHA_MAX");
-        alphaMin = (Double)getPropCfgEE("ALPHA_MIN");
-        alphaMul= (Double)getPropCfgEE("ALPHA_MUL");
-        alphaDiv = (Double)getPropCfgEE("ALPHA_DIV");
-        alphaFrecAct = (Integer)getPropCfgEE("ALPHA_FREC_ACT");
+        alpha = getPropCfgEEDouble("ALPHA");
+        alphaC = getPropCfgEEDouble("ALPHA_C");
+        alphaMax = getPropCfgEEDouble("ALPHA_MAX");
+        alphaMin = getPropCfgEEDouble("ALPHA_MIN");
+        alphaMul= getPropCfgEEDouble("ALPHA_MUL");
+        alphaDiv = getPropCfgEEDouble("ALPHA_DIV");
+        alphaFrecAct = getPropCfgEEInteger("ALPHA_FREC_ACT");
     }
     
-    public static Object getPropCfgEE(String llave){
+    public static Integer getPropCfgEEInteger(String llave){
+        String prop = cfgEE.getProperty(llave);
+        if(isInteger(prop))
+            return Integer.parseInt(prop);
+        throw new NumberFormatException("Error la propiedad: "+llave+ " no es un Entero");
+    }
+    
+    public static Double getPropCfgEEDouble(String llave){
         String prop = cfgEE.getProperty(llave);
         if(isDouble(prop))
             return Double.parseDouble(prop);
-        else if(isInteger(prop))
-            return Integer.parseInt(prop);
-        else
-            return prop;
+        throw new NumberFormatException("Error la propiedad: "+llave+ " no es un Double");
+    }
+    
+    public static String getPropCfgEE(String llave){
+        return cfgEE.getProperty(llave);
     }
     
     public static boolean isDouble(String param){

@@ -6,7 +6,6 @@
 package escom.ibhi.deteccionsexoedad;
 
 import escom.ibhi.resource.Utileria.Util;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -47,35 +46,35 @@ public class Poblacion {
         Sujeto sujetoMRes = new Sujeto(tamSuj, 0);  //Sujeto Mutado
         Sujeto sujAMut = sujetos[indexSujeto];
         for(int i = 0; i<tamSuj; i++){
-            sujetoMRes.setGetAt(sujAMut.getGetAt(i) + alphas[i]*Util.rand_DN(0, 1), 1);
+            sujetoMRes.setGetAt(sujAMut.getGetAt(i) + alphas[indexSujeto]*Util.rand_DN(0, 1), i);
         }
         return sujetoMRes;
     }
     
     public void modificaAlpha(int indexSujeto){
         if(alphas[indexSujeto].compareTo(Util.alphaMin) < 0 ){
-            log.log(Level.INFO, "~~~~~~ Reset ALPHA ~~~~~~");
+            System.out.println("~~~~~~ Reset ALPHA ~~~~~~");
             resetAlpha(alphas[indexSujeto]);
         }else if(alphas[indexSujeto].compareTo(Util.alphaMax) > 0 ){
-            log.log(Level.INFO, "~~~~~~ Reset ALPHA ~~~~~~");
+            System.out.println("~~~~~~ Reset ALPHA ~~~~~~");
             resetAlpha(alphas[indexSujeto]);
         }else{
             double relacionExito = exitos[indexSujeto]/iteraciones[indexSujeto];
             if(relacionExito < Util.alphaC){
-                log.log(Level.INFO,"****** ALPHA ******");
-                log.log(Level.INFO, "relacionExito: {0}", relacionExito);
-                log.log(Level.INFO, "ALPHA: {0}", alphas[indexSujeto]);
+                System.out.println("****** ALPHA ******");
+                System.out.println("relacionExito: "+ relacionExito);
+                System.out.println("ALPHA: "+ alphas[indexSujeto]);
                 alphas[indexSujeto] *= Util.alphaMul;
-                log.log(Level.INFO,"****** ALPHA ******");
+                System.out.println("****** ALPHA ******");
             }else if(relacionExito > Util.alphaC){
-                log.log(Level.INFO,"////// ALPHA //////");
-                log.log(Level.INFO, "relacionExito: {0}", relacionExito);
-                log.log(Level.INFO, "ALPHA: {0}", alphas[indexSujeto]);
+                System.out.println("////// ALPHA //////");
+                System.out.println("relacionExito: "+ relacionExito);
+                System.out.println("ALPHA: "+ alphas[indexSujeto]);
                 alphas[indexSujeto] /= Util.alphaMul;
-                log.log(Level.INFO,"////// ALPHA //////");
+                System.out.println("////// ALPHA //////");
             }
         }
-        log.log(Level.INFO, "Nvo ALPHA: {0}", alphas[indexSujeto]);
+        System.out.println("Nvo ALPHA: "+alphas[indexSujeto]);
         exitos[indexSujeto] = 0;
         iteraciones[indexSujeto] = 0;
     }
@@ -113,8 +112,7 @@ public class Poblacion {
     
     public void setSujetoAt(Sujeto sujeto, int posicion){
         sujetos[posicion] = sujeto;
-        if(mejor == null || sujeto.getError()< mejor.getError() )
-            mejor = sujeto;
+        setMejor(sujeto);
     }
 
     /**
@@ -129,6 +127,18 @@ public class Poblacion {
      */
     public void setTamPob(int tamPob) {
         this.tamPob = tamPob;
+    }
+
+    /**
+     * @return the mejor
+     */
+    public Sujeto getMejor() {
+        return mejor;
+    }
+    
+    public void setMejor(Sujeto sujeto){
+        if(mejor == null || sujeto.getError()< mejor.getError() )
+            mejor = sujeto;
     }
     
 }

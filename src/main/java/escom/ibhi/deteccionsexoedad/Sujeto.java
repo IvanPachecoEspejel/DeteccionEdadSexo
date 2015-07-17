@@ -6,6 +6,7 @@
 package escom.ibhi.deteccionsexoedad;
 
 import escom.ibhi.resource.Utileria.Util;
+import java.util.Arrays;
 
 /**
  *
@@ -23,13 +24,16 @@ public class Sujeto {
     
     public Sujeto(int tamSujeto, int opCrom){
         cromosoma = new double[tamSujeto];
-        double desviacion = (double)Util.getPropCfgEE("VAL_MAX_SUJ") - (double)Util.getPropCfgEE("VAL_MIN_SUJ");
-        desviacion /= 2.0;
-        double media = (double)Util.getPropCfgEE("VAL_MIN_SUJ") + desviacion;
-        if(opCrom == 1)
-            for(double gen : cromosoma){
-                gen = Util.rand_DN(media, desviacion);
+        if(opCrom == 1){
+            double desviacion = Util.getPropCfgEEDouble("VAL_MAX_SUJ") - 
+                                Util.getPropCfgEEDouble("VAL_MIN_SUJ");
+            desviacion /= 2.0;
+            double media = Util.getPropCfgEEDouble("VAL_MIN_SUJ") + desviacion;
+            for(int i = 0; i < tamSujeto; i++){
+                cromosoma[i] = Util.rand_DN(media, desviacion);
             }
+        }
+            
         error = 0;
     }
     
@@ -68,6 +72,11 @@ public class Sujeto {
      */
     public void setError(double error) {
         this.error = error;
+    }
+    
+    @Override
+    public String toString(){
+        return Arrays.toString(cromosoma) + " -> Error: "+error;
     }
     
 }

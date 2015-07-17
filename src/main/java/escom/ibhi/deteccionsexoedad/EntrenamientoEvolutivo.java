@@ -6,6 +6,8 @@
 package escom.ibhi.deteccionsexoedad;
 
 import escom.ibhi.resource.Utileria.Util;
+import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.encog.ml.MLMethod;
 import org.encog.ml.TrainingImplementationType;
@@ -29,7 +31,7 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
     private final FlatNetwork currentFlatNetwork;
     private final Poblacion pob;
     
-    private final double[] salidaS = null;
+    private double[] salidaS = null;
     private Sujeto sujetoM;
     private double errS;
     /*
@@ -39,14 +41,17 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
     */
     public EntrenamientoEvolutivo(ContainsFlat network, MLDataSet training) {
         super(TrainingImplementationType.Iterative);
-        currentFlatNetwork = (FlatNetwork) network;
+        currentFlatNetwork = network.getFlat();
+        salidaS = new double[training.getIdealSize()];
         setTraining(training);
         setIteration(0);
         setError(0);
-        pob = new Poblacion((int)Util.getPropCfgEE("TAM_POBLACION"), currentFlatNetwork.getEncodeLength());
+        pob = new Poblacion(Util.getPropCfgEEInteger("TAM_POBLACION"), currentFlatNetwork.getEncodeLength());
         for(Sujeto s : pob.getSujetos()){
             evaluarSujeto(s);
+            pob.setMejor(s);
         }
+        setError(pob.getMejor().getError());
         //Falta especifiar las estrategias a utilizar
     }
     
@@ -55,33 +60,32 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
     */
     @Override
     public void iteration() {
-        for(int i = 0; i< pob.getTamPob(); i++){
-            sujetoM = pob.mutaSujeto(i);
-            pob.addIteracionAt(i);
+        setIteration(getIteration()+1);
+        //System.out.println("********** Iteracion : "+getIteration()+" **********");
+        for(int i = 0; i< getPob().getTamPob(); i++){
+            sujetoM = getPob().mutaSujeto(i);
+            getPob().addIteracionAt(i);
             evaluarSujeto(sujetoM);
-            if(pob.getSujetoAt(i).getError() > sujetoM.getError()){
-                pob.addExitoAt(i);
-                pob.setSujetoAt(sujetoM, i);
+            if(getPob().getSujetoAt(i).getError() > sujetoM.getError()){
+                getPob().addExitoAt(i);
+                getPob().setSujetoAt(sujetoM, i);
             }
             if(getIteration() % ((int)Util.alphaFrecAct) == 0){
-                pob.modificaAlpha(i);
+                getPob().modificaAlpha(i);
             }
         }
-        setIteration(getIteration()+1);
+        setError(getPob().getMejor().getError());
+        //System.out.println("~~~~~~~~~~ Iteracion : "+getIteration()+" <OK> ~~~~~~~~~~");
     }
     
-    public double caclError(final double[] salidas,final double[] ideales,final double[] pesos){
+    public double calcError(final double[] salidas,final double[] ideales,final double[] pesos){
         double error = 0.0;
         double sumaPesos = 0.0;
         for(int i = 0; i < salidas.length; i++){
-            error += ideales[i] - (ideales[i])*Math.log(salidas[i]) - (1-ideales[i])*Math.log(ideales[i]);
+            error += (ideales[i])*Math.log(salidas[i]) - (1-ideales[i])*Math.log(1-salidas[i]);
         }
-        for(int i = 0; i< pesos.length; i++)
-            sumaPesos += pesos[i];
         
         error = Math.abs(error);
-        error += sumaPesos/pesos.length*(Double)(Util.getPropCfgEE("CONS_PESOS_PEQUENIOS"));
-        
         return error;
     }
     
@@ -90,7 +94,7 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
         errS = 0;
         for(MLDataPair par : getTraining()){
             currentFlatNetwork.compute(par.getInput().getData(), salidaS);
-            errS += caclError(salidaS, par.getIdealArray(), s.getCromosoma());
+            errS += calcError(salidaS, par.getIdealArray(), s.getCromosoma());
         }
         s.setError(errS);
     }
@@ -137,5 +141,12 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
     @Override
     public MLMethod getMethod() {
         return (MLMethod) getStrategies().get(getIteration());
+    }
+
+    /**
+     * @return the pob
+     */
+    public Poblacion getPob() {
+        return pob;
     }
 }
