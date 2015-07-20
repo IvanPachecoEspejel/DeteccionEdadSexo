@@ -13,10 +13,10 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <div id="divTituloPrincipal">
-            <h1 id="h1TituloPrincipal">
-                <link id="lnkTituloPrincipal" />
-            </h1>
+        <div class="principal">
+            <a href="www.google.com" class="principal" >
+                ¿Que edad tienes?
+            </a>
         </div>
     </body>
 </html>
