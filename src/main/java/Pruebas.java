@@ -8,15 +8,10 @@
  *
  * @author ivan
  */
-import escom.ibhi.deteccionsexoedad.EntrenamientoEvolutivo;
-import org.encog.engine.network.activation.ActivationSigmoid;
+import escom.ibhi.deteccionsexoedad.RNEvalutiva;
+import java.util.Arrays;
 import org.encog.ml.data.MLData;
-import org.encog.ml.data.MLDataPair;
-import org.encog.ml.data.MLDataSet;
-import org.encog.ml.data.basic.BasicMLDataSet;
-import org.encog.neural.networks.BasicNetwork;
-import org.encog.neural.networks.layers.BasicLayer;
-import org.encog.neural.networks.layers.Layer;
+
 public class Pruebas {
     
     public
@@ -40,31 +35,23 @@ public class Pruebas {
                                     23.13650927220143};
 
     public static void main(String args[]){
-        BasicNetwork n = new BasicNetwork();
-        n.addLayer(new BasicLayer(null, true, 2));
-        n.addLayer(new BasicLayer(new ActivationSigmoid(), true, 2));
-        n.addLayer(new BasicLayer(new ActivationSigmoid(), false, 1));
-        n.getStructure().finalizeStructure();
-        n.reset();
-//        n.getFlat().setWeights(MEJ_SOL);
-//        
-        MLDataSet traningSet = new BasicMLDataSet(XORINPUT, XORIDEAL);
-//        for(MLDataPair par : traningSet){
-//            MLData salida = n.compute(par.getInput());
-//            System.out.println("Salidas: "+salida.toString());
-//        }
-//        
-        EntrenamientoEvolutivo ee =  new EntrenamientoEvolutivo(n, traningSet);
+        RNEvalutiva n =  new RNEvalutiva("Prueba", 2, 1, new int[]{2}, 1, 1000, 10, 0.01);
+        n.initEntrenamiento(XORINPUT, XORIDEAL);
+        System.out.println("Entrenando...");
+        n.entrenar();
+        System.out.println("Entrenando<ok>");
+        System.out.println("Guardando...");
+        n.guardarRN("/home/ivan/Escritorio/");
+        System.out.println("Guardando<ok>");
+        n.cargarRN("/home/ivan/Escritorio/Prueba.eg");
+        MLData salPrueba = n.clasificar(new double[]{0,0});
+        MLData salPrueba1 = n.clasificar(new double[]{0,1});
+        MLData salPrueba2 = n.clasificar(new double[]{1,0});
+        MLData salPrueba3 = n.clasificar(new double[]{1,1});
+        System.out.println(Arrays.toString(salPrueba.getData()));
+        System.out.println(Arrays.toString(salPrueba1.getData()));
+        System.out.println(Arrays.toString(salPrueba2.getData()));
+        System.out.println(Arrays.toString(salPrueba3.getData()));
         
-        int epoch = 1 ;
-        do {
-            ee.iteration();
-            System.out.println(" Epoch #"+epoch+" Error: "+ee.getError());
-            epoch++;
-        } while (ee.getError() > 0.01 );
-        System.out.println("Mejor solucion: "+ee.getPob().getMejor().toString());
-        
-    }
-    
-    
+    }    
 }
