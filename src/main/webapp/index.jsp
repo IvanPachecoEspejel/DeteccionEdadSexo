@@ -8,15 +8,34 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <link type="text/css" rel="stylesheet" href="lib/css/estilo.css">
-        <title>JSP Page</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        
+        <script type="text/javascript" src="script/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript" src="script/images.js"></script>
+        <script type="text/javascript" src="script/styling.js"></script>
+        
+        <link type="text/css" rel="stylesheet" href="css/style.css" />
+       
+        <title>IBHI</title>
     </head>
     <body>
-        <div class="principal">
-            <a href="www.google.com" class="principal" >
-                ¿Que edad tienes?
-            </a>
+        <div id="principal">
+            <h1>Detección de <span id="sexo">Sexo</span> y
+                <span id="edad">Edad</span></h1>
+            <form method="post" enctype="multipart/form-data">
+                <h2>Elige tu foto para clasificar:</h2>
+                <div id="buttons">
+                    <div id="upload">
+                        <input type="button" id="fileButton" class="uploadButton" value="Browse" />
+                        <input type="file" id="fileUpload" name="imagen" accept="image/*" />
+                        <span id="fileName">Select file..</span>
+                    </div>
+                    <input type="button" id="submit" class="uploadButton" name="clasficar" value="Clasificar"/>
+                </div>
+                <div id="thumb">
+                    <output id="show"></output>
+                </div>
+            </form>
         </div>
     </body>
 </html>
