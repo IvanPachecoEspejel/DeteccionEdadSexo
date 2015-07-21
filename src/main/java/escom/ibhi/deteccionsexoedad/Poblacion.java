@@ -141,4 +141,12 @@ public class Poblacion {
             mejor = sujeto;
     }
     
+    @Override
+    public String toString(){
+        String str = "";
+        for(Sujeto s :sujetos)
+            str += s.toString() +"\n";
+        return str;
+    }
+    
 }

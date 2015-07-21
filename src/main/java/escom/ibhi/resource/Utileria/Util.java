@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 public class Util {
     
     public static final Properties cfgEE;   //Propiedades de configuracion del entrenamiento evolutivo
+    public static final Properties cfgRNSexo;   //Propiedades de configuracion de la Red nueronal para el sexo
     private static final Logger log = Logger.getLogger(Util.class.getName());
     private static final Random r;
     public static final Double alpha;
@@ -32,9 +33,11 @@ public class Util {
     
     static {
         cfgEE = new Properties();
+        cfgRNSexo = new Properties();
         r = new Random(System.currentTimeMillis());
         try {
             cfgEE.load(new FileInputStream("src/main/resources/Configuracion/cfgEntrenamientoEvolutivo.properties"));
+            cfgRNSexo.load(new FileInputStream("src/main/resources/Configuracion/cfgRNSexo.properties"));
         } catch (IOException ex) {
             log.log(Level.SEVERE, null, ex);
         }
@@ -63,6 +66,24 @@ public class Util {
     
     public static String getPropCfgEE(String llave){
         return cfgEE.getProperty(llave);
+    }
+    
+    public static Integer getPropCfgRNSxInteger(String llave){
+        String prop = cfgRNSexo.getProperty(llave);
+        if(isInteger(prop))
+            return Integer.parseInt(prop);
+        throw new NumberFormatException("Error la propiedad: "+llave+ " no es un Entero");
+    }
+    
+    public static Double getPropCfgRNSxDouble(String llave){
+        String prop = cfgRNSexo.getProperty(llave);
+        if(isDouble(prop))
+            return Double.parseDouble(prop);
+        throw new NumberFormatException("Error la propiedad: "+llave+ " no es un Double");
+    }
+    
+    public static String getPropCfgRNSx(String llave){
+        return cfgRNSexo.getProperty(llave);
     }
     
     public static boolean isDouble(String param){

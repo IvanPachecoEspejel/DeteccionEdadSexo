@@ -6,6 +6,7 @@
 package escom.ibhi.deteccionsexoedad;
 
 import escom.ibhi.resource.Utileria.Util;
+import java.io.File;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,11 +14,14 @@ import org.encog.ml.MLMethod;
 import org.encog.ml.TrainingImplementationType;
 import org.encog.ml.data.MLDataPair;
 import org.encog.ml.data.MLDataSet;
+import org.encog.ml.data.specific.CSVNeuralDataSet;
 import org.encog.ml.train.BasicTraining;
 import org.encog.neural.flat.FlatNetwork;
+import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.ContainsFlat;
 import org.encog.neural.networks.training.Train;
 import org.encog.neural.networks.training.propagation.TrainingContinuation;
+import org.encog.persist.EncogDirectoryPersistence;
 
 /**
  *
@@ -61,7 +65,6 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
     @Override
     public void iteration() {
         setIteration(getIteration()+1);
-        //System.out.println("********** Iteracion : "+getIteration()+" **********");
         for(int i = 0; i< getPob().getTamPob(); i++){
             sujetoM = getPob().mutaSujeto(i);
             getPob().addIteracionAt(i);
@@ -75,16 +78,14 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
             }
         }
         setError(getPob().getMejor().getError());
-        //System.out.println("~~~~~~~~~~ Iteracion : "+getIteration()+" <OK> ~~~~~~~~~~");
+        
     }
     
-    public double calcError(final double[] salidas,final double[] ideales,final double[] pesos){
+    public double calcError(final double[] salidas,final double[] ideales){
         double error = 0.0;
-        double sumaPesos = 0.0;
         for(int i = 0; i < salidas.length; i++){
             error += (ideales[i])*Math.log(salidas[i]) - (1-ideales[i])*Math.log(1-salidas[i]);
         }
-        
         error = Math.abs(error);
         return error;
     }
@@ -93,8 +94,8 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
         currentFlatNetwork.setWeights(s.getCromosoma());
         errS = 0;
         for(MLDataPair par : getTraining()){
-            currentFlatNetwork.compute(par.getInput().getData(), salidaS);
-            errS += calcError(salidaS, par.getIdealArray(), s.getCromosoma());
+            currentFlatNetwork.compute(par.getInputArray(), salidaS);
+            errS += calcError(salidaS, par.getIdealArray());
         }
         s.setError(errS);
     }
