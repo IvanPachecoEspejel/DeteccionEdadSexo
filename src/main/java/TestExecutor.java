@@ -14,7 +14,7 @@ public class TestExecutor {
     
     
     public static void main(String[] args) {
-        new ScriptExecutor().ejecutarScript();
+        new ScriptExecutor().ejecutarScript("test1.py");
         
     }
 }
