@@ -43,7 +43,29 @@ public class EntrenamientoNN {
                                     23.13650927220143};
 
     public static void main(String args[]){
-        RNEvalutiva n =  new RNEvalutiva("NN", 2500, 4, new int[]{1000,500,100,50}, 1, 5000, 2000, 0.01);
+        RNEvalutiva n =  new RNEvalutiva("NN", 32, 16, 1000, 1, 0.01, 8, 8);
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        //PORFA VUELVAN A GENERAR LOS DATOS DE ENTRADA COMO ESTA EN LA ENTRENAMIENTO
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         double [][]entradas;
         double [][]salidas;
         int numEntradas;
@@ -87,7 +109,7 @@ public class EntrenamientoNN {
                 Logger.getLogger(Entrenamiento.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        n.initEntrenamiento(entradas, salidas);
+        n.initEntrenamiento();
         System.out.println("Entrenando...");
         n.entrenar();
         System.out.println("Entrenando<ok>");
