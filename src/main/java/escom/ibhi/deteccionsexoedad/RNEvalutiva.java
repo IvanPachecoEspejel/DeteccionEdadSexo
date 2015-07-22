@@ -6,15 +6,17 @@
 package escom.ibhi.deteccionsexoedad;
 
 
+import java.awt.Image;
 import java.io.File;
-import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.ml.data.MLData;
 import org.encog.ml.data.MLDataSet;
-import org.encog.ml.data.basic.BasicMLData;
-import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.neural.networks.BasicNetwork;
-import org.encog.neural.networks.layers.BasicLayer;
 import org.encog.persist.EncogDirectoryPersistence;
+import org.encog.platformspecific.j2se.data.image.ImageMLData;
+import org.encog.platformspecific.j2se.data.image.ImageMLDataSet;
+import org.encog.util.downsample.Downsample;
+import org.encog.util.downsample.SimpleIntensityDownsample;
+import org.encog.util.simple.EncogUtility;
 
 /**
  *
@@ -24,54 +26,59 @@ public class RNEvalutiva {
     
     private BasicNetwork n;
     private EntrenamientoEvolutivo ee;
-    private MLDataSet traningSet;
+    private final ImageMLDataSet traningSet;
+    private final Downsample downsample;
+    private final int escalamientoAlto;
+    private final int escalamientoAncho;
     
     private String nomRN;
-    private final int numNeuEnt;
-    private final int numCapOcu;
-    private final int[] numNeuPCapOcu;
-    private final int numNeuSal;
+    private final int numNeuCapOcu1;
+    private final int numNeuCapOcu2;
     private double errMin;
     
     private int frecGuar;
     private int frecMonErr;
     
     
-    public RNEvalutiva(String nombre, int numNeuronasEntrada, int numCapasOcultas,
-            int []numeroNuerunasPorCapaOculta, int numNeuronasSalida, 
-            int frecuencaRespaldoRN, int frecuenciaMonitoreoError, double errorMinimo){
+    public RNEvalutiva( String nombre,
+                        int numNeuronasCapaOculta1, 
+                        int numNeuronasCapaOculta2,
+                        int frecuencaRespaldoRN, 
+                        int frecuenciaMonitoreoError, 
+                        double errorMinimo,
+                        int escalamientoNormalizadoAlto,
+                        int escalamientoNormalizadoAncho){
         
         this.nomRN = nombre;
-        this.numNeuEnt = numNeuronasEntrada;
-        this.numCapOcu = numCapasOcultas;
-        this.numNeuPCapOcu = numeroNuerunasPorCapaOculta;
-        this.numNeuSal = numNeuronasSalida;
+        this.numNeuCapOcu1 = numNeuronasCapaOculta1;
+        this.numNeuCapOcu2 = numNeuronasCapaOculta2;
         this.frecGuar = frecuencaRespaldoRN;
         this.frecMonErr = frecuenciaMonitoreoError;        
         this.errMin = errorMinimo;
-        System.out.println("Error minimo: "+errMin);
-        
-        initRN();
-        
-        
+        this.escalamientoAlto = escalamientoNormalizadoAlto;
+        this.escalamientoAncho = escalamientoNormalizadoAncho;
+        downsample =  new SimpleIntensityDownsample();
+        traningSet = new ImageMLDataSet(downsample, false, 1, 0);
     }
     
-    public final void initRN(){
-        n = new BasicNetwork();
-        getN().addLayer(new BasicLayer(null, true, getNumNeuEnt()));
-        for(int i = 0; i < getNumCapOcu(); i++){
-            getN().addLayer(new BasicLayer(new ActivationSigmoid(),
-                    true, 
-                    getNumNeuPCapOcu()[i]));
-        }
-        getN().addLayer(new BasicLayer(new ActivationSigmoid(), false, getNumNeuSal()));
-        getN().getStructure().finalizeStructure();
-        getN().reset();
+    public void initRN(){
+        n = EncogUtility.simpleFeedForward( traningSet.getInputSize(), 
+                                            numNeuCapOcu1, 
+                                            numNeuCapOcu2, 
+                                            this.traningSet.getIdealSize(), 
+                                            false);
     }
     
-    public final void initEntrenamiento(double[][] entradas, double[][] salidasIdeales){
-        traningSet = new BasicMLDataSet(entradas, salidasIdeales);
+    public final void initEntrenamiento(){
         ee =  new EntrenamientoEvolutivo(getN(), getTraningSet());
+    }
+    
+    public void addEntrada(Image img, MLData salidaIdeal){
+        traningSet.add(new ImageMLData(img), salidaIdeal);
+    }
+    
+    public void finalizarProcesoEntrada(){
+        traningSet.downsample(escalamientoAlto, escalamientoAncho);
     }
     
     public void entrenar(){
@@ -91,8 +98,9 @@ public class RNEvalutiva {
         System.out.println("Iter: "+iter+" Mejor solucion: "+getEe().getPob().getMejor().toString());
     }
     
-    public MLData clasificar(double[] in){
-        MLData entrada = new BasicMLData(in);
+    public MLData clasificar(Image img){
+        final ImageMLData entrada = new ImageMLData(img);
+        entrada.downsample(this.downsample, false, escalamientoAlto, escalamientoAncho, 1, 0);
         return getN().compute(entrada);
     }
     
@@ -145,31 +153,17 @@ public class RNEvalutiva {
     }
 
     /**
-     * @return the numNeuEnt
+     * @return the numNeuCapOcu1
      */
-    public int getNumNeuEnt() {
-        return numNeuEnt;
+    public int getNumNeuCapOcu1() {
+        return numNeuCapOcu1;
     }
 
     /**
-     * @return the numCapOcu
+     * @return the numNeuCapOcu2
      */
-    public int getNumCapOcu() {
-        return numCapOcu;
-    }
-
-    /**
-     * @return the numNeuPCapOcu
-     */
-    public int[] getNumNeuPCapOcu() {
-        return numNeuPCapOcu;
-    }
-
-    /**
-     * @return the numNeuSal
-     */
-    public int getNumNeuSal() {
-        return numNeuSal;
+    public int getNumNeuCapOcu2() {
+        return numNeuCapOcu2;
     }
 
     /**

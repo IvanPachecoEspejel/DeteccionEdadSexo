@@ -85,11 +85,11 @@ public class Poblacion {
     }
     
     public void addExitoAt(int indexSujeto){
-        exitos[indexSujeto]++;
+        exitos[indexSujeto] = exitos[indexSujeto]+1;
     }
     
     public void addIteracionAt(int indexSujeto){
-        iteraciones[indexSujeto]++;
+        iteraciones[indexSujeto] = iteraciones[indexSujeto] +1;
     }
     
     public Sujeto getSujetoAt(int indexSujeto){

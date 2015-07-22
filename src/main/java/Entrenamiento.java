@@ -10,44 +10,32 @@
  */
 import escom.ibhi.deteccionsexoedad.RNEvalutiva;
 import escom.ibhi.resource.Utileria.Util;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
+import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import org.encog.ml.data.MLData;
+import org.encog.ml.data.basic.BasicMLData;
 
 public class Entrenamiento {
     
-    public
-    static double XORINPUT[][] = {{ 0.0 , 0.0 } ,
-                                  { 1.0 , 0.0 } ,
-                                  { 0.0 , 1.0 } ,
-                                  { 1.0 , 1.0 }} ;
-
-    public static double XORIDEAL [][] = {  { 0.0 } ,
-                                            { 1.0 } ,
-                                            { 1.0 } ,
-                                            { 0.0 } } ;
-    public static double MEJ_SOL[] ={45.042387293235336,
-                                    -32.58878843164396, 
-                                    -28.464587049814877, 
-                                    -4.725892464725167, 
-                                    -42.43986990671029,
-                                    45.0158961266909, 
-                                    -59.53985250945689, 
-                                    -73.20877796148959, 
-                                    23.13650927220143};
-
     public static void main(String args[]){
-        RNEvalutiva n =  new RNEvalutiva("HM", 2500, 4, new int[]{1000,500,100,50}, 1, 5000, 2000, 0.01);
-        double [][]entradas;
-        double [][]salidas;
-        int numEntradas;
-        int aux = 0;
+        //Se crea la red neuronal Sol se conideraron 2 capas ocultas
+        //Parametros
+        //1.-Nombre de la red neuronal
+        //2.-Neuronas de la capa oculta 1
+        //3.-Neuronas de la capa oculta 2
+        //4.-Cada cuantas iteraciones se va hacer un respaldo de la red neuronal
+        //5.-Cada cuantas iteraciones se va mostrar el error
+        //6.-Error minimo a alcanzaar
+        //7.-Factor al que se normaliza y escalan las imagenes a lo alto
+        //8.-Factor al que se normaliza y escalan las imagenes a lo ancho
+        RNEvalutiva n =  new RNEvalutiva("HM", 32, 16, 1000, 1, 0.01, 8, 8);
+        
+        //Se cargan las imagenes (PROCURAR QUE EL NUMERO DE AMBOS TIPOS DE IMAGENES SEA EL MISMO) 
+        //las sobrantes utilizar para hacer pruebas
         File f_H = new File(Util.getPropCfgRNSx("PATH_H"));
         File f_M = new File(Util.getPropCfgRNSx("PATH_M"));
         if(!f_H.exists()){
@@ -58,63 +46,68 @@ public class Entrenamiento {
             System.err.println("Directorio erroneo de Mujeres");
             return;
         }
-        File[] imgs_H = f_H.listFiles();
-        File[] imgs_M = f_H.listFiles();
-        numEntradas = imgs_H.length + imgs_H.length;
-        salidas = new double[numEntradas][];
-        entradas = new double[numEntradas][];
-        BufferedImage imgAux;
-        BufferedImage imagen;
-        DataBuffer df;
-        int indexImgH = 0;
-        int indexImgM = 0;
+        
+        File[] filMasFre;
+        File[] filMenFre;
+        int factorEquidad;
         int indexEntradas = 0;
-        while(indexEntradas < numEntradas){
-            try {
-                if(aux == 0 && indexImgH < imgs_H.length){
-                    imgAux = ImageIO.read(imgs_H[indexImgH]);
-                    imagen = new BufferedImage(imgAux.getWidth(),
-                            imgAux.getHeight(), 
-                            BufferedImage.TYPE_BYTE_GRAY);
-                    salidas[indexEntradas] = new double[]{1};
-                    indexImgH++;
-                    System.out.println("Hombre");
-                }else if(indexImgM < imgs_M.length){
-                    imgAux = ImageIO.read(imgs_M[indexImgM]);
-                    imagen = new BufferedImage(imgAux.getWidth(),
-                            imgAux.getHeight(), 
-                            BufferedImage.TYPE_BYTE_GRAY);
-                    System.out.println("Mujer");
-                    salidas[indexEntradas] = new double[]{0};
-                    indexImgM++;
-                    aux -= 1;
-                    aux = Math.abs(aux);
-                }else{
-                    imgAux = ImageIO.read(imgs_H[indexImgH]);
-                    imagen = new BufferedImage(imgAux.getWidth(),
-                            imgAux.getHeight(), 
-                            BufferedImage.TYPE_BYTE_GRAY);
-                    salidas[indexEntradas] = new double[]{1};
-                    indexImgH++;
-                    System.out.println("Hombre");
-                }
-                df = imagen.getData().getDataBuffer();
-                entradas[indexEntradas] = new double[df.getSize()];
-                for(int j = 0; j<entradas[indexEntradas].length; j++){
-                    entradas[indexEntradas][j] = df.getElemDouble(j);
+        int auxOscilador = 0;
+        int indFilMasFrec = 0;
+        int indFilMenFrec = 0;
+        MLData salIdeMasFrec;
+        MLData salIdeMenFrec;
+        
+        if(f_H.listFiles().length < f_M.listFiles().length){
+            filMasFre = f_M.listFiles();
+            filMenFre = f_H.listFiles();
+            salIdeMasFrec =  new BasicMLData(new double[]{1});//Mujeres
+            salIdeMenFrec =  new BasicMLData(new double[]{0});//Hombres
+
+        }else{
+            filMasFre = f_H.listFiles();
+            filMenFre = f_M.listFiles();
+            salIdeMasFrec =  new BasicMLData(new double[]{0});//Hombres
+            salIdeMenFrec =  new BasicMLData(new double[]{1});//Mujeres
+        }
+        factorEquidad = filMasFre.length/filMenFre.length;
+        
+        while(indFilMasFrec < filMasFre.length){
+            try {                
+                if(auxOscilador == 0 || indFilMenFrec >= filMenFre.length){
+                    Image imgMasFre = ImageIO.read(filMasFre[indFilMasFrec]);
+                    n.addEntrada(imgMasFre, salIdeMasFrec);
+                    if((indexEntradas+1) % factorEquidad ==0){
+                        auxOscilador -= 1;
+                        auxOscilador = Math.abs(auxOscilador);
+                    }
+                    indFilMasFrec++;
+                }else {
+                    Image imgMenFre = ImageIO.read(filMenFre[indFilMenFrec]);
+                    n.addEntrada(imgMenFre, salIdeMenFrec);
+                    auxOscilador -= 1;
+                    auxOscilador = Math.abs(auxOscilador);
+                    indFilMenFrec++;
                 }
                 indexEntradas++;
-                System.out.println("num: "+indexEntradas);
             } catch (IOException ex) {
                 Logger.getLogger(Entrenamiento.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        n.initEntrenamiento(entradas, salidas);
+        //Se utiliza para poder normalizar las entradas
+        n.finalizarProcesoEntrada();
+        //Se utiliza para crear la red neuronal segun las neuronas de entradas que se generaron en la normalizacion
+        n.initRN();
+        //Se inicializa el algoritmo de entrenamiento (Pueden cambiarlo si desean)
+        //Para modificar los valores de configuracion del entrenamiento evolutivo esta en el archivo src/main/resource/Configuracion/cfgEntrenameintoEvolutivo.properties
+        //En este link hay un ejemplo de encog con imagenes 
+        //https://github.com/encog/encog-java-examples/blob/master/src/main/java/org/encog/examples/neural/image/ImageNeuralNetwork.java
+        n.initEntrenamiento();
         System.out.println("Entrenando...");
         n.entrenar();
         System.out.println("Entrenando<ok>");
         System.out.println("Guardando...");
         n.guardarRN("/home/ivan/Escritorio/");
         System.out.println("Guardando<ok>");
+        
     }    
 }

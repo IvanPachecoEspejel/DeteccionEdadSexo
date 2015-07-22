@@ -6,22 +6,16 @@
 package escom.ibhi.deteccionsexoedad;
 
 import escom.ibhi.resource.Utileria.Util;
-import java.io.File;
-import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.encog.ml.MLMethod;
 import org.encog.ml.TrainingImplementationType;
 import org.encog.ml.data.MLDataPair;
 import org.encog.ml.data.MLDataSet;
-import org.encog.ml.data.specific.CSVNeuralDataSet;
 import org.encog.ml.train.BasicTraining;
 import org.encog.neural.flat.FlatNetwork;
-import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.ContainsFlat;
 import org.encog.neural.networks.training.Train;
 import org.encog.neural.networks.training.propagation.TrainingContinuation;
-import org.encog.persist.EncogDirectoryPersistence;
 
 /**
  *
