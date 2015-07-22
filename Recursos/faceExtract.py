@@ -3,7 +3,7 @@ import sys
 from sys import argv
 import os
 
-if(len(argv)):
+if(len(argv)<5):
     print ""
     print "Argumetos:  dirDeBusqueda prefijoNombres inicioNumeracion clasificadorXML"
     print ""
@@ -52,7 +52,7 @@ for imagen in imagenes:
             minSize=(30, 30),
             flags = cv2.cv.CV_HAAR_SCALE_IMAGE
         )
-        print "Found {0} faces!".format(len(faces))
+        print "{0} Rostros encontrados".format(len(faces))
         if(len(faces) > 0):
             print "Aislando areas de rostro..."
             lista_rois = []
@@ -65,13 +65,12 @@ for imagen in imagenes:
             print "Creando nuevas imagenes de rostros..."
             for rostro in lista_rois:
                 #cv2.imshow("Ventana" + str(numRostro), rostro)
-                print "NO dibujado" , ".jpg", numRostro
-                str(numRostro) + ".jpg"
                 cv2.imwrite(prefijo + str(numRostro) + ".jpg", rostro)
-                print "Dibujado"
+                resized_image = cv2.resize(rostro, (50, 50)) 
+                cv2.imwrite(prefijo + str(numRostro) + ".jpg", resized_image)
+                print "Dibujado .. ok"
                 numRostro+=1
             #cv2.waitKey(0)
-            print imagen, '...OK'     
     except:
         print 'Error al procesar imagen' , sys.exc_info()[0]
 

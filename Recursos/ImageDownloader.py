@@ -1,7 +1,7 @@
 import requests
 from sys import argv
 
-if(len(argv)):
+if(len(argv)<4):
     print ""
     print "Argumetos:  nombreArchivo prefijoNombres inicioNumeracion"
     print ""
