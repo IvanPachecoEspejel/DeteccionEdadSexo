@@ -19,16 +19,17 @@
         <title>IBHI</title>
     </head>
     <body>
+        <header>
+            <h1>Detecci&oacute;n de <span class="italic">Sexo</span> y <span class="italic">Edad</span></h1>
+        </header>
         <div id="principal">
-            <h1>Detección de <span id="sexo">Sexo</span> y
-                <span id="edad">Edad</span></h1>
             <form method="post" enctype="multipart/form-data">
                 <h2>Elige tu foto para clasificar:</h2>
                 <div id="buttons">
                     <div id="upload">
                         <input type="button" id="fileButton" class="uploadButton" value="Browse" />
                         <input type="file" id="fileUpload" name="imagen" accept="image/*" />
-                        <span id="fileName">Select file..</span>
+                        <span id="fileName">Select file...</span>
                     </div>
                     <input type="button" id="submit" class="uploadButton" name="clasficar" value="Clasificar"/>
                 </div>

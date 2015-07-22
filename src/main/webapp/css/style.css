@@ -9,34 +9,35 @@ and open the template in the editor.
 */
 
 body {
-    padding: 30px;
-    background-color: #FF9235;
+    background-color: #FFFFFF;
     font-family: "Calibri", "Arial";
+    margin: 0px;
+    padding: 0px;
+}
+
+header {
+    background-color: #52657F;
+    padding: 20px 0px;
+    border-radius: 0px 0px 20px 20px;
+}
+
+header h1 {
+    text-align: center;
+    margin: 0px;
+    color: #FFFFFF;
+}
+
+span.italic {
+    font-style: italic;
 }
 
 div#principal {
-    background-color: #FFFFFF;
     border-radius: 10px;
+    margin: 30px;
     padding: 10px 30px;
 }
 
-div#principal h1, div#principal h2 {
-    color: #0A3E30;
-}
-
-div#principal h1 {
-    text-align: center;
-}
-
-div#principal span#sexo {
-    font-style: italic;
-}
-
-div#principal span#edad {
-    font-style: italic;
-}
-
-div#principal div#buttons {
+div#buttons {
     width: 400px;
     margin: 0px auto;
 }
@@ -66,10 +67,10 @@ div#upload input[type="file"] {
     left:0;
 }
 .uploadButton {
-    background-color: #0A3E30;
+    background-color: #7F7F7F;
     border: none;
     border-radius: 3px;
-    color: #C7FFB9;
+    color: #FFFFFF;
     cursor:pointer;
     display: inline-block;
     height: 30px;
@@ -80,8 +81,7 @@ div#upload input[type="file"] {
 }
 
 .uploadButton:active {
-    background-color: #964FB8;
-    color: #FFFFFF;
+    background-color: #CCCCCC;
 }
 
 #submit:hover {
@@ -101,20 +101,20 @@ div#upload input[type="file"] {
     margin-left: 10px;
 }
 
-div#principal div#thumb {
+div#thumb {
     height: 200px;
     width: 200px;
     border: 1px solid #000;
     margin: 40px auto;
 }
 
-div#principal output#show {
+output#show {
     height: 200px;
     width: 200px;
     position: absolute;
 }
 
-div#principal output img {
+output img {
     height: 200px;
     width: 200px;
 }
