@@ -70,7 +70,7 @@ public class EntrenamientoNN {
         n.entrenar();
         System.out.println("Entrenando<ok>");
         System.out.println("Guardando...");
-        n.guardarRN("/home/rainmaker/faces");
+        n.guardarRN("/home/rainmaker/faces/");
         System.out.println("Guardando<ok>");
 
     }
