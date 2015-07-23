@@ -34,6 +34,7 @@ public class Util {
     public static final double alphaDiv;
     
     public static final Integer alphaFrecAct;
+    public static final int gammaFrecAct;
     public static final Integer alphaFrecConCol; 
     
     public static final double probMut;
@@ -53,6 +54,7 @@ public class Util {
         gammaC = getPropCfgEEDouble("GAMMA_C");
         gammaSum = getPropCfgEEInteger("GAMMA_SUM");
         gammaRes = getPropCfgEEInteger("GAMMA_RES");
+        gammaFrecAct = getPropCfgEEInteger("GAMMA_FREC_ACT");
         alpha = getPropCfgEEDouble("ALPHA");
         alphaC = getPropCfgEEDouble("ALPHA_C");
         alphaMax = getPropCfgEEDouble("ALPHA_MAX");
@@ -64,6 +66,8 @@ public class Util {
         
         probCru = getPropCfgEEDouble("PROB_CRU");
         probMut = getPropCfgEEDouble("PROB_MUT");
+        System.out.println("ProbCru :"+probCru);
+        System.out.println("ProbMut :"+probMut);
     }
     
     public static Integer getPropCfgEEInteger(String llave){

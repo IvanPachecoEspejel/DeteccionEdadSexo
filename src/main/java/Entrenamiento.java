@@ -32,7 +32,7 @@ public class Entrenamiento {
         //6.-Error minimo a alcanzaar
         //7.-Factor al que se normaliza y escalan las imagenes a lo alto
         //8.-Factor al que se normaliza y escalan las imagenes a lo ancho
-        RNEvalutiva n =  new RNEvalutiva("HM", 32, 16, 1000, 1, 0.01, 10, 10);
+        RNEvalutiva n =  new RNEvalutiva("HM3", 200, 100, 1000, 2, 0.01, 20, 20);
         
         //Se cargan las imagenes (PROCURAR QUE EL NUMERO DE AMBOS TIPOS DE IMAGENES SEA EL MISMO) 
         //las sobrantes utilizar para hacer pruebas
@@ -96,7 +96,7 @@ public class Entrenamiento {
         //Se utiliza para poder normalizar las entradas
         n.finalizarProcesoEntrada();
         //Se utiliza para crear la red neuronal segun las neuronas de entradas que se generaron en la normalizacion
-        n.initRN();
+        n.cargarRN("/home/ivan/Escritorio/HM2.eg");
         //Se inicializa el algoritmo de entrenamiento (Pueden cambiarlo si desean)
         //Para modificar los valores de configuracion del entrenamiento evolutivo esta en el archivo src/main/resource/Configuracion/cfgEntrenameintoEvolutivo.properties
         //En este link hay un ejemplo de encog con imagenes 

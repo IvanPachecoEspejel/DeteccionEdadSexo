@@ -55,7 +55,15 @@ public class Poblacion {
     }
     
     public Sujeto cruzarSuejtos(int indexSujeto){
-        return sujetos[indexSujeto].cruzar(sujetos[seleccionRuleta()], ks[indexSujeto]);
+        Sujeto sCruz = sujetos[indexSujeto].cruzar(sujetos[seleccionRuleta()], ks[indexSujeto]);
+        sCruz.mutar(Util.probMut, alphas[indexSujeto]);
+        return sCruz;
+    }
+    
+    public Sujeto cruzarSujetoAletoriamente(int indexSujeto){
+        Sujeto sCruz = sujetos[indexSujeto].cruzar(sujetos[Util.randint_N_M(0, tamPob-1)], ks[indexSujeto]);
+        sCruz.mutar(Util.probMut, alphas[indexSujeto]);
+        return sCruz;
     }
     
     public int seleccionRuleta(){
@@ -108,7 +116,7 @@ public class Poblacion {
     
     public void modificaGamma(int indexSujeto){
         double relacionExito = exitosKs[indexSujeto]/iteracionesKs[indexSujeto];
-        if(relacionExito < Util.gammaC){
+        if(Util.randint_N_M(0, 100) % 2 == 0){
             System.out.println("****** GAMMA ******");
             System.out.println("relacionExito: "+ relacionExito);
             System.out.println("GAMMA: "+ ks[indexSujeto]);
@@ -152,8 +160,8 @@ public class Poblacion {
         }
     }
     
-    public void resetAlpha(double alpha){
-        alpha = Util.alpha;
+    public void resetAlpha(int index){
+        alphas[index] = Util.alpha;
     }
     
     public void addExitoAt(int indexSujeto){
