@@ -30,7 +30,7 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
     private final Poblacion pob;
     
     private double[] salidaS = null;
-    private Sujeto sujetoM;
+    private Sujeto sujetoCru;
     private double errS;
     /*
     *   @training : Contiene los valores de entrada y los valores de salida 
@@ -60,15 +60,24 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
     public void iteration() {
         setIteration(getIteration()+1);
         for(int i = 0; i< getPob().getTamPob(); i++){
-            sujetoM = getPob().mutaSujeto(i);
-            getPob().addIteracionAt(i);
-            evaluarSujeto(sujetoM);
-            if(getPob().getSujetoAt(i).getError() > sujetoM.getError()){
-                getPob().addExitoAt(i);
-                getPob().setSujetoAt(sujetoM, i);
-            }
-            if(getIteration() % ((int)Util.alphaFrecAct) == 0){
-                getPob().modificaAlpha(i);
+            if(Util.rand_N_M(0, 1) < Util.probCru){
+                sujetoCru = getPob().cruzarSuejtos(i);
+                getPob().addIteracionAt(i);
+                evaluarSujeto(sujetoCru);
+                if(getPob().getSujetoAt(i).getError() > sujetoCru.getError()){
+                    getPob().addExitoAt(i);
+                    getPob().setSujetoAt(sujetoCru, i);
+                }
+                if(getIteration() % ((int)Util.alphaFrecAct) == 0){
+                    getPob().modificaAlpha(i);
+                }
+                if(getIteration() % (Util.alphaFrecConCol) == 0){
+                    sujetoCru = getPob().recolectarConocimeintoColectivo();
+                    evaluarSujeto(sujetoCru);
+                    if(sujetoCru.getError() < getPob().getMejor().getError()){
+                        getPob().conocimeintoColectivoExitoso(sujetoCru);
+                    }
+                }
             }
         }
         setError(getPob().getMejor().getError());
