@@ -10,111 +10,68 @@
  */
 import escom.ibhi.deteccionsexoedad.RNEvalutiva;
 import escom.ibhi.resource.Utileria.Util;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
+import java.awt.Image;
 import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import org.encog.ml.data.MLData;
+import org.encog.ml.data.basic.BasicMLData;
 
 public class EntrenamientoNN {
-    
-    public
-    static double XORINPUT[][] = {{ 0.0 , 0.0 } ,
-                                  { 1.0 , 0.0 } ,
-                                  { 0.0 , 1.0 } ,
-                                  { 1.0 , 1.0 }} ;
 
-    public static double XORIDEAL [][] = {  { 0.0 } ,
-                                            { 1.0 } ,
-                                            { 1.0 } ,
-                                            { 0.0 } } ;
-    public static double MEJ_SOL[] ={45.042387293235336,
-                                    -32.58878843164396, 
-                                    -28.464587049814877, 
-                                    -4.725892464725167, 
-                                    -42.43986990671029,
-                                    45.0158961266909, 
-                                    -59.53985250945689, 
-                                    -73.20877796148959, 
-                                    23.13650927220143};
+    public static void main(String args[]) {
+        //Se crea la red neuronal Sol se conideraron 2 capas ocultas
+        //Parametros
+        //1.-Nombre de la red neuronal
+        //2.-Neuronas de la capa oculta 1
+        //3.-Neuronas de la capa oculta 2
+        //4.-Cada cuantas iteraciones se va hacer un respaldo de la red neuronal
+        //5.-Cada cuantas iteraciones se va mostrar el error
+        //6.-Error minimo a alcanzaar
+        //7.-Factor al que se normaliza y escalan las imagenes a lo alto
+        //8.-Factor al que se normaliza y escalan las imagenes a lo ancho
+        RNEvalutiva n = new RNEvalutiva("NNLennon", 32, 16, 1000, 1, 0.01, 8, 8);
 
-    public static void main(String args[]){
-        RNEvalutiva n =  new RNEvalutiva("NN", 32, 16, 1000, 1, 0.01, 8, 8);
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        //PORFA VUELVAN A GENERAR LOS DATOS DE ENTRADA COMO ESTA EN LA ENTRENAMIENTO
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        double [][]entradas;
-        double [][]salidas;
-        int numEntradas;
-        int aux = 0;
-        //File f_H = new File(Util.getPropCfgRNSx("PATH_H"));
-        //File f_M = new File(Util.getPropCfgRNSx("PATH_M"));
-        
+        //Se cargan las imagenes (PROCURAR QUE EL NUMERO DE AMBOS TIPOS DE IMAGENES SEA EL MISMO) 
+        //las sobrantes utilizar para hacer pruebas
         File f_NN = new File(Util.getPropCfgRNSx("PATH_NN"));
-        if(!f_NN.exists()){
-            System.err.println("Directorio erroneo de Hombres");
+        if (!f_NN.exists()) {
+            System.err.println("Directorio erroneo de NN");
             return;
         }
-        
-        File[] imgs_NN = f_NN.listFiles();
-        numEntradas = imgs_NN.length;
-        salidas = new double[numEntradas][];
-        entradas = new double[numEntradas][];
-        BufferedImage imgAux;
-        BufferedImage imagen;
-        DataBuffer df;
-        
-        int indexEntradas = 0;
-        while(indexEntradas < numEntradas){
+
+        File[] files;
+
+        MLData saldata;
+
+        files = f_NN.listFiles();
+        saldata = new BasicMLData(new double[]{1});//Mujeres
+
+        for (File f : files) {
             try {
-               
-                    imgAux = ImageIO.read(imgs_NN[indexEntradas]);
-                    imagen = new BufferedImage(imgAux.getWidth(),
-                            imgAux.getHeight(), 
-                            BufferedImage.TYPE_BYTE_GRAY);
-                    salidas[indexEntradas] = new double[]{1};
-                    System.out.println("NN");
-                
-                df = imagen.getData().getDataBuffer();
-                entradas[indexEntradas] = new double[df.getSize()];
-                for(int j = 0; j<entradas[indexEntradas].length; j++){
-                    entradas[indexEntradas][j] = df.getElemDouble(j);
-                }
-                indexEntradas++;
-                System.out.println("num: "+indexEntradas);
-            } catch (IOException ex) {
-                Logger.getLogger(Entrenamiento.class.getName()).log(Level.SEVERE, null, ex);
+                Image imgMasFre = ImageIO.read(f);
+                n.addEntrada(imgMasFre, saldata);
+            } catch (Exception e) {
+                Logger.getLogger(Entrenamiento.class.getName()).log(Level.SEVERE, null, e);
             }
         }
+
+        //Se utiliza para poder normalizar las entradas
+        n.finalizarProcesoEntrada();
+        //Se utiliza para crear la red neuronal segun las neuronas de entradas que se generaron en la normalizacion
+        n.initRN();
+        //Se inicializa el algoritmo de entrenamiento (Pueden cambiarlo si desean)
+        //Para modificar los valores de configuracion del entrenamiento evolutivo esta en el archivo src/main/resource/Configuracion/cfgEntrenameintoEvolutivo.properties
+        //En este link hay un ejemplo de encog con imagenes 
+        //https://github.com/encog/encog-java-examples/blob/master/src/main/java/org/encog/examples/neural/image/ImageNeuralNetwork.java
         n.initEntrenamiento();
         System.out.println("Entrenando...");
         n.entrenar();
         System.out.println("Entrenando<ok>");
         System.out.println("Guardando...");
-        n.guardarRN("/home/rainmaker/");
+        n.guardarRN("/home/rainmaker/faces");
         System.out.println("Guardando<ok>");
-    }    
+
+    }
 }
