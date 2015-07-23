@@ -4,10 +4,29 @@
  * and open the template in the editor.
  */
 
+$(document).ready(function () {
+    $('#formImage')[0].reset();
+});
 
-$('#submit').click(function() {
-    var fileName = $("#fileUpload").val();
-    if (!fileName) {
-        alert("Please select a file to upload");
-    }
+$(document).ready(function () {
+    $('#submit').click(function () {
+        var fileName = $("#fileUpload").val();
+
+        if (!fileName) {
+            alert("Please select a file to upload");
+
+            return;
+        }
+        
+        $.ajax({
+            url: 'imageupload',
+            type: 'POST',
+            data: new FormData($('#formImage')[0]),
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                $('#resultado').html(data);
+            }
+        });
+    });
 });

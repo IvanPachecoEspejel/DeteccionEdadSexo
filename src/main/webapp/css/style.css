@@ -48,9 +48,9 @@ div#upload {
     border-radius:5px;
     display:inline-block;
     height: 30px;
-    padding:3px 40px 3px 3px;
+    padding:3px 10px 3px 3px;
     position:relative;
-    width: auto;
+    width: 240px;
 }
 
 div#upload:hover {
@@ -101,11 +101,16 @@ div#upload input[type="file"] {
     margin-left: 10px;
 }
 
+div#datos {
+    width: 400px;
+    margin: 40px auto;
+}
+
 div#thumb {
     height: 200px;
     width: 200px;
     border: 1px solid #000;
-    margin: 40px auto;
+    float: left;
 }
 
 output#show {
@@ -117,4 +122,9 @@ output#show {
 output img {
     height: 200px;
     width: 200px;
+}
+
+div#resultado {
+    float: left;
+    margin-left: 50px;
 }
