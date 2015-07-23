@@ -14,11 +14,13 @@ import java.util.Arrays;
  */
 public class Sujeto {
     
-    private double[] cromosoma;
+    private final double[] cromosoma;
     private double error;
+    private double preAptitud;
     
     public Sujeto(double[] cromosoma){
-        this.cromosoma = cromosoma;
+        this.cromosoma = new double[cromosoma.length];
+        System.arraycopy(cromosoma, 0, this.cromosoma, 0, cromosoma.length);
         error = 0;
     }
     
@@ -37,7 +39,26 @@ public class Sujeto {
         error = 0;
     }
     
-    public void setGetAt(double gen, int indexGen){
+    public Sujeto cruzar(Sujeto pareja, int k){
+        Sujeto hijo = new Sujeto(getCromosoma().length, 0);
+        System.arraycopy(getCromosoma(), 0, hijo.getCromosoma(), 0, k);
+        System.arraycopy(pareja.getCromosoma(), k, hijo.getCromosoma(), k, getCromosoma().length-k);
+        return hijo;
+    }
+    
+    public void mutar(double probMut, double alpha){
+        for(int i = 0; i<cromosoma.length; i++){
+            if(Util.rand_DN(0, 1) < probMut)
+                setGenAt(getGetAt(i) + alpha*Util.rand_DN(0, 1), i);
+        }
+    }
+    
+    public void copiar(Sujeto mejSuj){
+        setCromosoma(mejSuj.getCromosoma());
+        error = mejSuj.getError();
+    }
+    
+    public void setGenAt(double gen, int indexGen){
         cromosoma[indexGen] = gen;
     }
     
@@ -57,7 +78,7 @@ public class Sujeto {
      * @param cromosoma the cromosoma to set
      */
     public void setCromosoma(double[] cromosoma) {
-        this.cromosoma = cromosoma;
+        System.arraycopy(cromosoma, 0, this.cromosoma, 0, cromosoma.length);
     }
 
     /**
@@ -72,6 +93,11 @@ public class Sujeto {
      */
     public void setError(double error) {
         this.error = error;
+        this.preAptitud = -error;
+    }
+    
+    public double getPreAptitud(){
+        return preAptitud;
     }
     
     @Override

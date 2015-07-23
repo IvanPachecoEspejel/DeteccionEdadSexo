@@ -32,7 +32,7 @@ public class Entrenamiento {
         //6.-Error minimo a alcanzaar
         //7.-Factor al que se normaliza y escalan las imagenes a lo alto
         //8.-Factor al que se normaliza y escalan las imagenes a lo ancho
-        RNEvalutiva n =  new RNEvalutiva("HM", 32, 16, 1000, 1, 0.01, 8, 8);
+        RNEvalutiva n =  new RNEvalutiva("HM", 32, 16, 1000, 1, 0.01, 10, 10);
         
         //Se cargan las imagenes (PROCURAR QUE EL NUMERO DE AMBOS TIPOS DE IMAGENES SEA EL MISMO) 
         //las sobrantes utilizar para hacer pruebas

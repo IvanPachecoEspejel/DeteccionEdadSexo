@@ -6,6 +6,7 @@
 package escom.ibhi.deteccionsexoedad;
 
 import escom.ibhi.resource.Utileria.Util;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 /**
@@ -19,49 +20,80 @@ public class Poblacion {
     private int tamPob;
     private final int tamSuj;
     
-    private Sujeto []sujetos;
-    private final Double []alphas;
-    private final int []exitos;
-    private final int []iteraciones;
+    private final Sujeto []sujetos;
+    private final double []alphas;
+    private final int []ks;
+    private final int []exitosAlphas;
+    private final int []iteracionesAlphas;
+    private final int []exitosKs;
+    private final int []iteracionesKs;
     private Sujeto mejor;
+    private Sujeto peor;
     
 
     public Poblacion(int tamPoblacion, int tamSujeto) {
         this.tamPob = tamPoblacion;
         this.tamSuj = tamSujeto;
         sujetos = new Sujeto[tamPoblacion];
-        alphas = new Double[tamPoblacion];
-        exitos = new int[tamPoblacion];
-        iteraciones = new int[tamPoblacion];
+        alphas = new double[tamPoblacion];
+        exitosAlphas = new int[tamPoblacion];
+        iteracionesAlphas = new int[tamPoblacion];
+        exitosKs = new int[tamPoblacion];
+        iteracionesKs = new int[tamPoblacion];
+        ks = new int[tamPoblacion];
         mejor = null;
         for(int i = 0; i< tamPoblacion; i++){
             sujetos[i] = new Sujeto(tamSujeto, 1);
             alphas[i] = Util.alpha;
-            exitos[i] = 0;
-            iteraciones[i] = 0;
+            ks[i] = Util.gamma;
+            ks[i] = Util.randint_N_M(0, tamPob-1);
+            exitosAlphas[i] = 0;
+            iteracionesAlphas[i] = 0;
+            exitosKs[i] = 0;
+            iteracionesKs[i] = 0;
         }
     }
     
-    public Sujeto mutaSujeto(int indexSujeto){
-        Sujeto sujetoMRes = new Sujeto(tamSuj, 0);  //Sujeto Mutado
-        Sujeto sujAMut = sujetos[indexSujeto];
-        for(int i = 0; i<tamSuj; i++){
-            sujetoMRes.setGetAt(sujAMut.getGetAt(i) + alphas[indexSujeto]*Util.rand_DN(0, 1), i);
+    public Sujeto cruzarSuejtos(int indexSujeto){
+        return sujetos[indexSujeto].cruzar(sujetos[seleccionRuleta()], ks[indexSujeto]);
+    }
+    
+    public int seleccionRuleta(){
+        double sumaApt = 0;
+        double aptAcu = 0;
+        int indexSujeto;
+        for(Sujeto s : sujetos){
+            sumaApt += getAptitudDe(s);
         }
-        return sujetoMRes;
+        double propSelec = Util.rand_N_M(0, sumaApt);
+        for(indexSujeto = 0; indexSujeto < sujetos.length; indexSujeto++){
+            aptAcu += getAptitudDe(sujetos[indexSujeto]);
+            if(aptAcu >= propSelec)
+                return indexSujeto;
+        }
+        return -1;
+    }
+    
+    public double getAptitudDe(Sujeto s){
+        return s.getPreAptitud() + peor.getError();
     }
     
     public void modificaAlpha(int indexSujeto){
-        if(alphas[indexSujeto].compareTo(Util.alphaMin) < 0 ){
+        if(alphas[indexSujeto]<(Util.alphaMin)){
             System.out.println("~~~~~~ Reset ALPHA ~~~~~~");
+
             //resetAlpha(alphas[indexSujeto]);
             alphas[indexSujeto] = resetAlpha();
-        }else if(alphas[indexSujeto].compareTo(Util.alphaMax) > 0 ){
+        }else if(new Double(alphas[indexSujeto]).compareTo(Util.alphaMax) > 0 ){
+
+            alphas[indexSujeto] = Util.alpha;
+        }else if(alphas[indexSujeto]> (Util.alphaMax)){
             System.out.println("~~~~~~ Reset ALPHA ~~~~~~");
             //resetAlpha(alphas[indexSujeto]);
-            alphas[indexSujeto] = resetAlpha();
+            
+            alphas[indexSujeto] = Util.alpha;
         }else{
-            double relacionExito = exitos[indexSujeto]/iteraciones[indexSujeto];
+            double relacionExito = exitosAlphas[indexSujeto]/iteracionesAlphas[indexSujeto];
             if(relacionExito < Util.alphaC){
                 System.out.println("****** ALPHA ******");
                 System.out.println("relacionExito: "+ relacionExito);
@@ -77,12 +109,57 @@ public class Poblacion {
             }
         }
         System.out.println("Nvo ALPHA: "+alphas[indexSujeto]);
-        exitos[indexSujeto] = 0;
-        iteraciones[indexSujeto] = 0;
+        exitosAlphas[indexSujeto] = 0;
+        iteracionesAlphas[indexSujeto] = 0;
     }
     
+    public void modificaGamma(int indexSujeto){
+        double relacionExito = exitosKs[indexSujeto]/iteracionesKs[indexSujeto];
+        if(relacionExito < Util.gammaC){
+            System.out.println("****** GAMMA ******");
+            System.out.println("relacionExito: "+ relacionExito);
+            System.out.println("GAMMA: "+ ks[indexSujeto]);
+            ks[indexSujeto] += Util.gammaSum;
+            if(ks[indexSujeto] >= tamSuj)
+                ks[indexSujeto] = tamSuj-1;
+            System.out.println("****** GAMMA ******");
+        }else if(relacionExito > Util.gammaC){
+            System.out.println("////// GAMMA //////");
+            System.out.println("relacionExito: "+ relacionExito);
+            System.out.println("GAMMA: "+ ks[indexSujeto]);
+            ks[indexSujeto] -= Util.gammaRes;
+            if(ks[indexSujeto] < 0)
+                ks[indexSujeto] = 0;
+            System.out.println("////// GAMMA //////");
+        }
+        System.out.println("Nvo K: "+ks[indexSujeto]);
+        exitosKs[indexSujeto] = 0;
+        iteracionesKs[indexSujeto] = 0;
+    }
     
-    public void resetAlpha(Double alpha){
+    public Sujeto recolectarConocimeintoColectivo(){
+        double conCol[] = new double[tamSuj];
+        Arrays.fill(conCol, 0);
+        try{
+            for(int i = 2; i<tamPob; i++){
+                Util.sumarArreglosDouble(conCol,sujetos[i].getCromosoma());
+            }
+            Util.multArregloEscalar(conCol, tamPob);
+        }catch(Exception e){
+            Logger.getLogger(this.getClass().getName()).severe(e.getMessage());
+        }
+        Sujeto s = new Sujeto(conCol);
+        return s;
+    }
+    
+    public void conocimeintoColectivoExitoso(Sujeto mejSuj){
+        System.out.println("*************Resulto*************");
+        for(Sujeto s : sujetos){
+            s.copiar(mejSuj);
+        }
+    }
+    
+    public void resetAlpha(double alpha){
         alpha = Util.alpha;
     }
     
@@ -91,11 +168,13 @@ public class Poblacion {
     }
     
     public void addExitoAt(int indexSujeto){
-        exitos[indexSujeto] = exitos[indexSujeto]+1;
+        exitosAlphas[indexSujeto] = exitosAlphas[indexSujeto]+1;
+        exitosKs[indexSujeto] = exitosKs[indexSujeto]+1;
     }
     
     public void addIteracionAt(int indexSujeto){
-        iteraciones[indexSujeto] = iteraciones[indexSujeto] +1;
+        iteracionesAlphas[indexSujeto] = iteracionesAlphas[indexSujeto] +1;
+        iteracionesKs[indexSujeto] = iteracionesKs[indexSujeto] +1;
     }
     
     public Sujeto getSujetoAt(int indexSujeto){
@@ -113,7 +192,7 @@ public class Poblacion {
      * @param sujetos the sujetos to set
      */
     public void setSujetos(Sujeto[] sujetos) {
-        this.sujetos = sujetos;
+        System.arraycopy(sujetos, 0, this.sujetos, 0, tamPob);
     }
     
     public void setSujetoAt(Sujeto sujeto, int posicion){
@@ -145,6 +224,8 @@ public class Poblacion {
     public void setMejor(Sujeto sujeto){
         if(mejor == null || sujeto.getError()< mejor.getError() )
             mejor = sujeto;
+        if(peor == null || sujeto.getError() > peor.getError())
+            peor = sujeto;
     }
     
     @Override
