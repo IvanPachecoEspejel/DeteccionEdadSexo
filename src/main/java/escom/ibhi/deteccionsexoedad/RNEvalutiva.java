@@ -65,6 +65,15 @@ public class RNEvalutiva {
         traningSet = new ImageMLDataSet(downsample, false, 1, 0);
     }
     
+    public RNEvalutiva(){
+        traningSet = null;
+        downsample = null;
+        escalamientoAlto = 0;
+        escalamientoAncho = 0;
+        numNeuCapOcu1 = 0;
+        numNeuCapOcu2 = 0; 
+    }
+    
     public void initRN(){
         n = EncogUtility.simpleFeedForward( traningSet.getInputSize(), 
                                             numNeuCapOcu1, 
@@ -114,6 +123,7 @@ public class RNEvalutiva {
     public MLData clasificar(Image img){
         final ImageMLData entrada = new ImageMLData(img);
         entrada.downsample(this.downsample, false, escalamientoAlto, escalamientoAncho, 1, 0);
+        System.out.println("Calsificacion: "+getN().classify(entrada));
         return getN().compute(entrada);
     }
     
