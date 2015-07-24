@@ -5,6 +5,7 @@
  */
 
 import escom.ibhi.deteccionsexoedad.RNEvalutiva;
+import escom.ibhi.resource.Utileria.ScriptExecutor;
 import java.awt.Image;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,7 +31,7 @@ import org.encog.ml.data.MLData;
 @WebServlet(urlPatterns = {"/imageupload"})
 @MultipartConfig
 public class ImageUpload extends HttpServlet {
-    RNEvalutiva clasH;
+    RNEvalutiva clasHM;
     RNEvalutiva clasM;
     RNEvalutiva clasBB;
     RNEvalutiva clasNN;
@@ -39,23 +40,48 @@ public class ImageUpload extends HttpServlet {
     RNEvalutiva clasVJ;
     MLData isHom, isMuj;
     MLData[] resulEdad;
+    ScriptExecutor preproceso;
     public ImageUpload(){
-        clasH= new RNEvalutiva();
-        clasM= new RNEvalutiva();
+        clasHM= new RNEvalutiva();
         clasBB= new RNEvalutiva();
         clasNN= new RNEvalutiva();
         clasJV= new RNEvalutiva();
         clasADU= new RNEvalutiva();
         clasVJ= new RNEvalutiva();
         
-        clasH.cargarRN("");
-        clasM.cargarRN("");
-        clasBB.cargarRN("");
-        clasNN.cargarRN("");
-        clasJV.cargarRN("");
-        clasADU.cargarRN("");
-        clasVJ.cargarRN("");
+        clasHM.cargarRN(System.getProperty("user.dir")+
+                    System.getProperty("file.separator")+
+                    "Entrenamiento"+
+                    System.getProperty("file.separator")+
+                    "HOMBRES_MUJERES.eg");
+        clasBB.cargarRN(System.getProperty("user.dir")+
+                    System.getProperty("file.separator")+
+                    "Entrenamiento"+
+                    System.getProperty("file.separator")+
+                    "BB_Buena.eg");
+        clasNN.cargarRN(System.getProperty("user.dir")+
+                    System.getProperty("file.separator")+
+                    "Entrenamiento"+
+                    System.getProperty("file.separator")+
+                    "NN_Buena.eg");
+        clasJV.cargarRN(System.getProperty("user.dir")+
+                    System.getProperty("file.separator")+
+                    "Entrenamiento"+
+                    System.getProperty("file.separator")+
+                    "JV_Buena.eg");
+        clasADU.cargarRN(System.getProperty("user.dir")+
+                    System.getProperty("file.separator")+
+                    "Entrenamiento"+
+                    System.getProperty("file.separator")+
+                    "ADULTOS_Buena.eg");
+        clasVJ.cargarRN(System.getProperty("user.dir")+
+                    System.getProperty("file.separator")+
+                    "Entrenamiento"+
+                    System.getProperty("file.separator")+
+                    "OLD_buena.eg");
         resulEdad  = new MLData[5];
+        
+        preproceso = new ScriptExecutor();
         
     }
     /**
@@ -79,10 +105,39 @@ public class ImageUpload extends HttpServlet {
             final Part filePart = request.getPart("imagen");
             
             //Este es el InputStream para el BufferedImage
-            Image img = ImageIO.read(filePart.getInputStream());
+            InputStream entrada =  filePart.getInputStream();
             
-            isHom = clasH.clasificar(img);
-            isMuj = clasH.clasificar(img);
+            System.out.println("Nombre Archivo: "+filePart.getName());
+            
+            File f=new File(System.getProperty("user.dir")+
+                    System.getProperty("file.separator")+
+                    "Recursos"+
+                    System.getProperty("file.separator")+
+                    filePart.getName());
+            
+            OutputStream salida=new FileOutputStream(f);
+            byte[] buf =new byte[1024];
+            int len;
+            while((len=entrada.read(buf))>0){
+                salida.write(buf,0,len);
+            }
+            salida.close();
+            entrada.close();
+            
+            preproceso.ejecutarScript(System.getProperty("user.dir")+
+                    System.getProperty("file.separator")+
+                    "Recursos"+
+                    System.getProperty("file.separator")+
+                    filePart.getName());
+            
+            Image img = ImageIO.read(new File(System.getProperty("user.dir")+
+                    System.getProperty("file.separator")+
+                    "Recursos"+
+                    System.getProperty("file.separator")+
+                    filePart.getName()));
+            
+            isHom = clasHM.clasificar(img);
+            isMuj = clasHM.clasificar(img);
             resulEdad[0] = clasBB.clasificar(img);
             resulEdad[1] = clasNN.clasificar(img);
             resulEdad[2] = clasJV.clasificar(img);
