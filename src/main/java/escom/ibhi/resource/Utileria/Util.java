@@ -40,13 +40,16 @@ public class Util {
     public static final double probMut;
     public static final double probCru;
     
+    public static final String d;
+    
     static {
         cfgEE = new Properties();
         cfgRNSexo = new Properties();
+        d = System.getProperty("file.separator");
         r = new Random(System.currentTimeMillis());
         try {
-            cfgEE.load(new FileInputStream("src/main/resources/Configuracion/cfgEntrenamientoEvolutivo.properties"));
-            cfgRNSexo.load(new FileInputStream("src/main/resources/Configuracion/cfgRNSexo.properties"));
+            cfgEE.load(new FileInputStream(Util.d+"WebAppSexEdad"+Util.d+"Configuracion"+Util.d+"cfgEntrenamientoEvolutivo.properties"));
+            cfgRNSexo.load(new FileInputStream(Util.d+"WebAppSexEdad"+Util.d+"Configuracion"+Util.d+"cfgRNSexo.properties"));
         } catch (IOException ex) {
             log.log(Level.SEVERE, null, ex);
         }
@@ -66,8 +69,6 @@ public class Util {
         
         probCru = getPropCfgEEDouble("PROB_CRU");
         probMut = getPropCfgEEDouble("PROB_MUT");
-        System.out.println("ProbCru :"+probCru);
-        System.out.println("ProbMut :"+probMut);
     }
     
     public static Integer getPropCfgEEInteger(String llave){

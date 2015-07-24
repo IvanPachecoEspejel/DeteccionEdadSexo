@@ -6,6 +6,7 @@
 
 import escom.ibhi.deteccionsexoedad.RNEvalutiva;
 import escom.ibhi.resource.Utileria.ScriptExecutor;
+import escom.ibhi.resource.Utileria.Util;
 import java.awt.Image;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -32,53 +34,28 @@ import org.encog.ml.data.MLData;
 @MultipartConfig
 public class ImageUpload extends HttpServlet {
     RNEvalutiva clasHM;
-    RNEvalutiva clasM;
     RNEvalutiva clasBB;
     RNEvalutiva clasNN;
     RNEvalutiva clasJV;
     RNEvalutiva clasADU;
     RNEvalutiva clasVJ;
-    MLData isHom, isMuj;
+    MLData isHM;
     MLData[] resulEdad;
     ScriptExecutor preproceso;
     public ImageUpload(){
-        clasHM= new RNEvalutiva();
-        clasBB= new RNEvalutiva();
-        clasNN= new RNEvalutiva();
-        clasJV= new RNEvalutiva();
-        clasADU= new RNEvalutiva();
-        clasVJ= new RNEvalutiva();
+        clasHM= new RNEvalutiva(18, 18);
+        clasBB= new RNEvalutiva(18, 18);
+        clasNN= new RNEvalutiva(18, 18);
+        clasJV= new RNEvalutiva(18, 18);
+        clasADU= new RNEvalutiva(18, 18);
+        clasVJ= new RNEvalutiva(18, 18);
         
-        clasHM.cargarRN(System.getProperty("user.dir")+
-                    System.getProperty("file.separator")+
-                    "Entrenamiento"+
-                    System.getProperty("file.separator")+
-                    "HOMBRES_MUJERES.eg");
-        clasBB.cargarRN(System.getProperty("user.dir")+
-                    System.getProperty("file.separator")+
-                    "Entrenamiento"+
-                    System.getProperty("file.separator")+
-                    "BB_Buena.eg");
-        clasNN.cargarRN(System.getProperty("user.dir")+
-                    System.getProperty("file.separator")+
-                    "Entrenamiento"+
-                    System.getProperty("file.separator")+
-                    "NN_Buena.eg");
-        clasJV.cargarRN(System.getProperty("user.dir")+
-                    System.getProperty("file.separator")+
-                    "Entrenamiento"+
-                    System.getProperty("file.separator")+
-                    "JV_Buena.eg");
-        clasADU.cargarRN(System.getProperty("user.dir")+
-                    System.getProperty("file.separator")+
-                    "Entrenamiento"+
-                    System.getProperty("file.separator")+
-                    "ADULTOS_Buena.eg");
-        clasVJ.cargarRN(System.getProperty("user.dir")+
-                    System.getProperty("file.separator")+
-                    "Entrenamiento"+
-                    System.getProperty("file.separator")+
-                    "OLD_buena.eg");
+        clasHM.cargarRN(Util.d+"WebAppSexEdad"+Util.d+"Entrenamiento"+Util.d+"HOMBRES_MUJERES.eg");
+        clasBB.cargarRN(Util.d+"WebAppSexEdad"+Util.d+"Entrenamiento"+Util.d+"BB_Buena.eg");
+        clasNN.cargarRN(Util.d+"WebAppSexEdad"+Util.d+"Entrenamiento"+Util.d+"NN_Buena.eg");
+        clasJV.cargarRN(Util.d+"WebAppSexEdad"+Util.d+"Entrenamiento"+Util.d+"JV_Buena.eg");
+        clasADU.cargarRN(Util.d+"WebAppSexEdad"+Util.d+"Entrenamiento"+Util.d+"ADULTOS_Buena.eg");
+        clasVJ.cargarRN(Util.d+"WebAppSexEdad"+Util.d+"Entrenamiento"+Util.d+"OLD_buena.eg");
         resulEdad  = new MLData[5];
         
         preproceso = new ScriptExecutor();
@@ -109,11 +86,7 @@ public class ImageUpload extends HttpServlet {
             
             System.out.println("Nombre Archivo: "+filePart.getName());
             
-            File f=new File(System.getProperty("user.dir")+
-                    System.getProperty("file.separator")+
-                    "Recursos"+
-                    System.getProperty("file.separator")+
-                    filePart.getName());
+            File f=new File(Util.d+"WebAppSexEdad"+Util.d+"Recursos"+Util.d+"imgCargada.jpg");
             
             OutputStream salida=new FileOutputStream(f);
             byte[] buf =new byte[1024];
@@ -124,30 +97,30 @@ public class ImageUpload extends HttpServlet {
             salida.close();
             entrada.close();
             
-            preproceso.ejecutarScript(System.getProperty("user.dir")+
-                    System.getProperty("file.separator")+
-                    "Recursos"+
-                    System.getProperty("file.separator")+
-                    filePart.getName());
+            preproceso.ejecutarScript(Util.d+"WebAppSexEdad"+Util.d+"Recursos"+Util.d+"Nombre del sript");
             
-            Image img = ImageIO.read(new File(System.getProperty("user.dir")+
-                    System.getProperty("file.separator")+
-                    "Recursos"+
-                    System.getProperty("file.separator")+
-                    filePart.getName()));
+            Image img = ImageIO.read(
+                    new File(Util.d+"WebAppSexEdad"+Util.d+"Recursos"+Util.d+"imgCargada.jpg"));
             
-            isHom = clasHM.clasificar(img);
-            isMuj = clasHM.clasificar(img);
+//            Image img = ImageIO.read(
+//                    new File(Util.d+"WebAppSexEdad"+Util.d+"Recursos"+Util.d+filePart.getName()+filePart.getName()));
+            
+            isHM = clasHM.clasificar(img);
             resulEdad[0] = clasBB.clasificar(img);
             resulEdad[1] = clasNN.clasificar(img);
             resulEdad[2] = clasJV.clasificar(img);
             resulEdad[3] = clasADU.clasificar(img);
             resulEdad[4] = clasVJ.clasificar(img);
             
-            sexo = isHom.getData()[0]>isMuj.getData()[0];
+            if(isHM.getData(0) > 0 )
+                sexo = false;
+            else{
+                sexo = true;
+            }
             int indexEdad = 0;
             double edadMax = -1;
             for(int i = 0; i<resulEdad.length; i++){
+                System.out.println("Clasificacion: "+Arrays.toString(resulEdad[i].getData()));
                 if(resulEdad[i].getData(0)> edadMax){
                     edadMax = resulEdad[i].getData(0);
                     indexEdad = i;
