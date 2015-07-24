@@ -6,6 +6,7 @@
 package escom.ibhi.deteccionsexoedad;
 
 import escom.ibhi.resource.Utileria.Util;
+import java.util.Arrays;
 import java.util.logging.Logger;
 import org.encog.ml.MLMethod;
 import org.encog.ml.TrainingImplementationType;
@@ -49,19 +50,28 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
             evaluarSujeto(s);
             pob.setMejor(s);
         }
+        pob.getSujetoAt(0).setCromosoma(currentFlatNetwork.getWeights());
+        evaluarSujeto(pob.getSujetoAt(0));
+        pob.setMejor(pob.getSujetoAt(0));
         setError(pob.getMejor().getError());
         //Falta especifiar las estrategias a utilizar
     }
     
     /*
     *   Funcion que efecuta una iteración del entrenamiento de la red neuronal
+    344.57283174804627
+    Iter #542 Error: 336.64192346011527
+    Iter #334 Error: 345.63620229008285
     */
     @Override
     public void iteration() {
         setIteration(getIteration()+1);
         for(int i = 0; i< getPob().getTamPob(); i++){
             if(Util.rand_N_M(0, 1) < Util.probCru){
-                sujetoCru = getPob().cruzarSuejtos(i);
+                if(getIteration()%2 ==0)
+                    sujetoCru = getPob().cruzarSuejtos(i);
+                else
+                    sujetoCru = getPob().cruzarSujetoAletoriamente(i);
                 getPob().addIteracionAt(i);
                 evaluarSujeto(sujetoCru);
                 if(getPob().getSujetoAt(i).getError() > sujetoCru.getError()){
@@ -70,6 +80,9 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
                 }
                 if(getIteration() % ((int)Util.alphaFrecAct) == 0){
                     getPob().modificaAlpha(i);
+                }
+                if(getIteration() % Util.gammaFrecAct == 0){
+                    getPob().modificaGamma(i);
                 }
                 if(getIteration() % (Util.alphaFrecConCol) == 0){
                     sujetoCru = getPob().recolectarConocimeintoColectivo();
@@ -81,7 +94,6 @@ public class EntrenamientoEvolutivo extends BasicTraining implements Train{
             }
         }
         setError(getPob().getMejor().getError());
-        
     }
     
     public double calcError(final double[] salidas,final double[] ideales){

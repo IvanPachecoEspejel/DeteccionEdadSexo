@@ -8,15 +8,14 @@ import sys
 from sys import argv
 import os
 
-if(len(argv)<4):
-    print ""
-    print "Argumetos:  path nombreRSal clasificadorXML"
-    print ""
-    exit()
+#if(len(argv)<4):
+#    print ""
+#    print "Argumetos:  path nombreRSal clasificadorXML"
+#    print ""
+#    exit()
 
-directorioRaiz = argv[1]
-nombre         = argv[2]
-cascPath       = argv[3]
+nombre         = "prep_IMG"
+cascPath       =  "haarcascade_frontalface_default.xml"
 
 print "Analizando " , directorioRaiz
 try:

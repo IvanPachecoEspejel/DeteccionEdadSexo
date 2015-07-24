@@ -104,7 +104,7 @@ public class Entrenamiento {
         //Se utiliza para poder normalizar las entradas
         n.finalizarProcesoEntrada();
         //Se utiliza para crear la red neuronal segun las neuronas de entradas que se generaron en la normalizacion
-        n.initRN();
+        n.cargarRN("/home/ivan/Escritorio/HM2.eg");
         //Se inicializa el algoritmo de entrenamiento (Pueden cambiarlo si desean)
         //Para modificar los valores de configuracion del entrenamiento evolutivo esta en el archivo src/main/resource/Configuracion/cfgEntrenameintoEvolutivo.properties
         //En este link hay un ejemplo de encog con imagenes 

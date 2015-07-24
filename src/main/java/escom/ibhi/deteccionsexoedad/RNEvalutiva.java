@@ -40,16 +40,19 @@ public class RNEvalutiva {
 
     private int frecGuar;
     private int frecMonErr;
-
-    public RNEvalutiva(String nombre,
-            int numNeuronasCapaOculta1,
-            int numNeuronasCapaOculta2,
-            int frecuencaRespaldoRN,
-            int frecuenciaMonitoreoError,
-            double errorMinimo,
-            int escalamientoNormalizadoAlto,
-            int escalamientoNormalizadoAncho) {
-
+    
+    private ResilientPropagation entResProp;
+    
+    
+    public RNEvalutiva( String nombre,
+                        int numNeuronasCapaOculta1, 
+                        int numNeuronasCapaOculta2,
+                        int frecuencaRespaldoRN, 
+                        int frecuenciaMonitoreoError, 
+                        double errorMinimo,
+                        int escalamientoNormalizadoAlto,
+                        int escalamientoNormalizadoAncho){
+        
         this.nomRN = nombre;
         this.numNeuCapOcu1 = numNeuronasCapaOculta1;
         this.numNeuCapOcu2 = numNeuronasCapaOculta2;
@@ -61,17 +64,31 @@ public class RNEvalutiva {
         downsample = new SimpleIntensityDownsample();
         traningSet = new ImageMLDataSet(downsample, false, 1, 0);
     }
-
-    public void initRN() {
-        n = EncogUtility.simpleFeedForward(traningSet.getInputSize(),
-                numNeuCapOcu1,
-                numNeuCapOcu2,
-                this.traningSet.getIdealSize(),
-                true);
+    
+    public RNEvalutiva(){
+        traningSet = null;
+        downsample = null;
+        escalamientoAlto = 0;
+        escalamientoAncho = 0;
+        numNeuCapOcu1 = 0;
+        numNeuCapOcu2 = 0; 
     }
-
-    public final void initEntrenamiento() {
-        ee = new EntrenamientoEvolutivo(getN(), getTraningSet());
+    
+    public void initRN(){
+        n = EncogUtility.simpleFeedForward( traningSet.getInputSize(), 
+                                            numNeuCapOcu1, 
+                                            numNeuCapOcu2, 
+                                            this.traningSet.getIdealSize(), 
+                                            false);
+    }
+    
+    public final void initEntrenamiento(){
+        ee =  new EntrenamientoEvolutivo(getN(), getTraningSet());
+    }
+    
+    public void initEntrenamientoResProp(){
+        entResProp = new ResilientPropagation(getN(), getTraningSet());
+        entResProp.addStrategy(new ResetStrategy(0.25, 50));
     }
     public final void initEntrenamientoResilentPropagation() {
         eResilentPropagation = new ResilientPropagation(getN(), traningSet);
@@ -111,6 +128,7 @@ public class RNEvalutiva {
     public MLData clasificar(Image img) {
         final ImageMLData entrada = new ImageMLData(img);
         entrada.downsample(this.downsample, false, escalamientoAlto, escalamientoAncho, 1, 0);
+        System.out.println("Calsificacion: "+getN().classify(entrada));
         return getN().compute(entrada);
     }
 
