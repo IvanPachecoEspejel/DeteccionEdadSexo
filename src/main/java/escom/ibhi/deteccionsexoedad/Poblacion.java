@@ -89,9 +89,16 @@ public class Poblacion {
     public void modificaAlpha(int indexSujeto){
         if(alphas[indexSujeto]<(Util.alphaMin)){
             System.out.println("~~~~~~ Reset ALPHA ~~~~~~");
+
+            //resetAlpha(alphas[indexSujeto]);
+            alphas[indexSujeto] = resetAlpha();
+        }else if(new Double(alphas[indexSujeto]).compareTo(Util.alphaMax) > 0 ){
+
             alphas[indexSujeto] = Util.alpha;
         }else if(alphas[indexSujeto]> (Util.alphaMax)){
             System.out.println("~~~~~~ Reset ALPHA ~~~~~~");
+            //resetAlpha(alphas[indexSujeto]);
+            
             alphas[indexSujeto] = Util.alpha;
         }else{
             double relacionExito = exitosAlphas[indexSujeto]/iteracionesAlphas[indexSujeto];
@@ -162,6 +169,10 @@ public class Poblacion {
     
     public void resetAlpha(int index){
         alphas[index] = Util.alpha;
+    }
+    
+    public double resetAlpha() {
+        return Util.alpha;
     }
     
     public void addExitoAt(int indexSujeto){

@@ -12,15 +12,16 @@ import escom.ibhi.deteccionsexoedad.RNEvalutiva;
 import escom.ibhi.resource.Utileria.Util;
 import java.awt.Image;
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import org.encog.ml.data.MLData;
 import org.encog.ml.data.basic.BasicMLData;
 
-public class EntrenamientoNN {
-
-    public static void main(String args[]) {
+public class EntrenamientoNNOLD {
+    
+    public static void main(String args[]){
         //Se crea la red neuronal Sol se conideraron 2 capas ocultas
         //Parametros
         //1.-Nombre de la red neuronal
@@ -31,32 +32,67 @@ public class EntrenamientoNN {
         //6.-Error minimo a alcanzaar
         //7.-Factor al que se normaliza y escalan las imagenes a lo alto
         //8.-Factor al que se normaliza y escalan las imagenes a lo ancho
-        RNEvalutiva n = new RNEvalutiva("NNLennon", 32, 16, 1000, 1, 0.01, 8, 8);
-
+        RNEvalutiva n =  new RNEvalutiva("NNOLD", 32, 16, 1000, 1, 0.01, 8, 8);
+        
         //Se cargan las imagenes (PROCURAR QUE EL NUMERO DE AMBOS TIPOS DE IMAGENES SEA EL MISMO) 
         //las sobrantes utilizar para hacer pruebas
         File f_NN = new File(Util.getPropCfgRNSx("PATH_NN"));
-        if (!f_NN.exists()) {
+        File f_OLD = new File(Util.getPropCfgRNSx("PATH_OLD"));
+        if(!f_NN.exists()){
             System.err.println("Directorio erroneo de NN");
             return;
         }
+        if(!f_OLD.exists()){
+            System.err.println("Directorio erroneo de NN");
+            return;
+        }
+        
+        File[] filMasFre;
+        File[] filMenFre;
+        int factorEquidad;
+        int indexEntradas = 0;
+        int auxOscilador = 0;
+        int indFilMasFrec = 0;
+        int indFilMenFrec = 0;
+        MLData salIdeMasFrec;
+        MLData salIdeMenFrec;
+        
+        if(f_NN.listFiles().length < f_OLD.listFiles().length){
+            filMasFre = f_OLD.listFiles();
+            filMenFre = f_NN.listFiles();
+            salIdeMasFrec =  new BasicMLData(new double[]{1});//Mujeres
+            salIdeMenFrec =  new BasicMLData(new double[]{0});//Hombres
 
-        File[] files;
-
-        MLData saldata;
-
-        files = f_NN.listFiles();
-        saldata = new BasicMLData(new double[]{1});//Mujeres
-
-        for (File f : files) {
-            try {
-                Image imgMasFre = ImageIO.read(f);
-                n.addEntrada(imgMasFre, saldata);
-            } catch (Exception e) {
-                Logger.getLogger(Entrenamiento.class.getName()).log(Level.SEVERE, null, e);
+        }else{
+            filMasFre = f_NN.listFiles();
+            filMenFre = f_OLD.listFiles();
+            salIdeMasFrec =  new BasicMLData(new double[]{0});//Hombres
+            salIdeMenFrec =  new BasicMLData(new double[]{1});//Mujeres
+        }
+        factorEquidad = filMasFre.length/filMenFre.length;
+        
+        while(indFilMasFrec < filMasFre.length){
+            try {                
+                if(auxOscilador == 0 || indFilMenFrec >= filMenFre.length){
+                    Image imgMasFre = ImageIO.read(filMasFre[indFilMasFrec]);
+                    n.addEntrada(imgMasFre, salIdeMasFrec);
+                    if((indexEntradas+1) % factorEquidad ==0){
+                        auxOscilador -= 1;
+                        auxOscilador = Math.abs(auxOscilador);
+                    }
+                    indFilMasFrec++;
+                }else {
+                    Image imgMenFre = ImageIO.read(filMenFre[indFilMenFrec]);
+                    n.addEntrada(imgMenFre, salIdeMenFrec);
+                    auxOscilador -= 1;
+                    auxOscilador = Math.abs(auxOscilador);
+                    indFilMenFrec++;
+                }
+                indexEntradas++;
+            } catch (IOException ex) {
+                Logger.getLogger(Entrenamiento.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
         //Se utiliza para poder normalizar las entradas
         n.finalizarProcesoEntrada();
         //Se utiliza para crear la red neuronal segun las neuronas de entradas que se generaron en la normalizacion
@@ -72,6 +108,6 @@ public class EntrenamientoNN {
         System.out.println("Guardando...");
         n.guardarRN("/home/rainmaker/faces/");
         System.out.println("Guardando<ok>");
-
-    }
+        
+    }    
 }
