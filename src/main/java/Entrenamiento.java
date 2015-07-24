@@ -47,7 +47,6 @@ public class Entrenamiento {
         
         
         File []otros = new File[f_NN.length + f_H.length +f_M.length+ f_OLD.length + f_JV.length];
-        System.out.println("Otros: "+otros.length);
         
         System.arraycopy(f_NN, 0, otros, 0, f_NN.length);
         System.arraycopy(f_H, 0, otros,f_NN.length,f_H.length);
@@ -79,7 +78,6 @@ public class Entrenamiento {
             salIdealMenFrec =  new BasicMLData(new double[]{-1});//Hombres
         }
         factorEquidad = filMasFre.length/filMenFre.length;
-        System.out.println("filMasFrec: "+filMasFre.length);
         while(indexFilesMasFrec < filMasFre.length){
             try {
                 if(auxOscilador == 0 || indexFilesMenFrec >= filMenFre.length){
@@ -89,7 +87,6 @@ public class Entrenamiento {
                         auxOscilador -= 1;
                         auxOscilador = Math.abs(auxOscilador);
                     }
-                    System.out.println("Otros: "+indexFilesMasFrec);
                     indexFilesMasFrec++;
                 }else {
                     Image imgMenFre = ImageIO.read(filMenFre[indexFilesMenFrec]);
@@ -97,7 +94,6 @@ public class Entrenamiento {
                     auxOscilador -= 1;
                     auxOscilador = Math.abs(auxOscilador);
                     indexFilesMenFrec++;
-                    System.out.println("Interes: "+indexFilesMenFrec);
                 }
                 indexEntradas++;
             } catch (IOException ex) {
@@ -113,7 +109,7 @@ public class Entrenamiento {
         //En este link hay un ejemplo de encog con imagenes 
         //https://github.com/encog/encog-java-examples/blob/master/src/main/java/org/encog/examples/neural/image/ImageNeuralNetwork.java
         n.initEntrenamientoResilentPropagation();
-        System.out.println("Entrenando...");
+        System.out.println(">>>ENTRENANDO Bebes<<<");
         n.entrenarResilentPropagation();
         System.out.println("Entrenando<ok>");
         System.out.println("Guardando...");
