@@ -41,8 +41,6 @@ public class RNEvalutiva {
     private int frecGuar;
     private int frecMonErr;
     
-    private ResilientPropagation entResProp;
-    
     
     public RNEvalutiva( String nombre,
                         int numNeuronasCapaOculta1, 
@@ -86,11 +84,6 @@ public class RNEvalutiva {
         ee =  new EntrenamientoEvolutivo(getN(), getTraningSet());
     }
     
-    public void initEntrenamientoResProp(){
-        entResProp = new ResilientPropagation(getN(), getTraningSet());
-        entResProp.addStrategy(new ResetStrategy(0.25, 50));
-    }
-    
     public void addEntrada(Image img, MLData salidaIdeal){
         traningSet.add(new ImageMLData(img), salidaIdeal);
     }
@@ -114,10 +107,6 @@ public class RNEvalutiva {
             }
         } while(getEe().getError() > getErrMin() );
         System.out.println("Iter: "+iter+" Mejor solucion: "+getEe().getPob().getMejor().toString());
-    }
-    
-    public void entrenarResProp(){
-        EncogUtility.trainConsole(entResProp, getN(), getTraningSet(), 3);
     }
     
     public MLData clasificar(Image img){
