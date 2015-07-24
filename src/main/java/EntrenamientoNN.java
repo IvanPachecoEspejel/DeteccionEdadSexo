@@ -13,14 +13,13 @@ import escom.ibhi.resource.Utileria.Util;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import org.encog.ml.data.MLData;
 import org.encog.ml.data.basic.BasicMLData;
 
-public class Entrenamiento {
+public class EntrenamientoNN {
     
     public static void main(String args[]){
         //Se crea la red neuronal Sol se conideraron 2 capas ocultas
@@ -33,7 +32,7 @@ public class Entrenamiento {
         //6.-Error minimo a alcanzaar
         //7.-Factor al que se normaliza y escalan las imagenes a lo alto
         //8.-Factor al que se normaliza y escalan las imagenes a lo ancho
-        RNEvalutiva n =  new RNEvalutiva("BB_Buena", 100, 50, 1000, 10, 0.01, 18, 18);
+        RNEvalutiva n =  new RNEvalutiva("NN_Buena", 100, 50, 1000, 10, 0.01, 18, 18);
         
         //Se cargan las imagenes (PROCURAR QUE EL NUMERO DE AMBOS TIPOS DE IMAGENES SEA EL MISMO) 
         //las sobrantes utilizar para hacer pruebas
@@ -46,14 +45,14 @@ public class Entrenamiento {
         File []f_JV = new File(Util.getPropCfgRNSx("PATH_JV")).listFiles();
         
         
-        File []otros = new File[f_NN.length + f_H.length +f_M.length+ f_OLD.length + f_JV.length];
-        System.out.println("Otros: "+otros.length);
+        File []otros = new File[f_BB.length + f_H.length +f_M.length+ f_OLD.length + f_JV.length];
+        //System.out.println("Otros: "+otros.length);
         
-        System.arraycopy(f_NN, 0, otros, 0, f_NN.length);
-        System.arraycopy(f_H, 0, otros,f_NN.length,f_H.length);
-        System.arraycopy(f_M , 0 , otros , f_NN.length +f_H.length , f_M.length);
-        System.arraycopy(f_OLD , 0 , otros , f_NN.length +f_H.length+f_M.length, f_OLD.length);
-        System.arraycopy(f_JV , 0 , otros , f_NN.length +f_H.length+f_M.length + f_OLD.length, f_JV.length);
+        System.arraycopy(f_BB, 0, otros, 0, f_BB.length);
+        System.arraycopy(f_H, 0, otros,f_BB.length,f_H.length);
+        System.arraycopy(f_M , 0 , otros , f_BB.length +f_H.length , f_M.length);
+        System.arraycopy(f_OLD , 0 , otros , f_BB.length +f_H.length+f_M.length, f_OLD.length);
+        System.arraycopy(f_JV , 0 , otros , f_BB.length +f_H.length+f_M.length + f_OLD.length, f_JV.length);
         
         
         File[] filMenFre;
@@ -66,14 +65,14 @@ public class Entrenamiento {
         MLData salIdealMasFrec;
         MLData salIdealMenFrec;
         
-        if(f_BB.length < otros.length){
+        if(f_NN.length < otros.length){
             filMasFre = otros;
-            filMenFre = f_BB;
+            filMenFre = f_NN;
             salIdealMasFrec =  new BasicMLData(new double[]{-1});//Mujeres
             salIdealMenFrec =  new BasicMLData(new double[]{1});//Hombres
 
         }else{
-            filMasFre = f_BB;
+            filMasFre = f_NN;
             filMenFre = otros;
             salIdealMasFrec =  new BasicMLData(new double[]{1});//Mujeres
             salIdealMenFrec =  new BasicMLData(new double[]{-1});//Hombres
@@ -88,6 +87,7 @@ public class Entrenamiento {
                         auxOscilador -= 1;
                         auxOscilador = Math.abs(auxOscilador);
                     }
+                    //System.out.println("Otros: "+indexFilesMasFrec);
                     indexFilesMasFrec++;
                 }else {
                     Image imgMenFre = ImageIO.read(filMenFre[indexFilesMenFrec]);
@@ -95,10 +95,11 @@ public class Entrenamiento {
                     auxOscilador -= 1;
                     auxOscilador = Math.abs(auxOscilador);
                     indexFilesMenFrec++;
+                    //System.out.println("Interes: "+indexFilesMenFrec);
                 }
                 indexEntradas++;
             } catch (IOException ex) {
-                Logger.getLogger(Entrenamiento.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(EntrenamientoNN.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         //Se utiliza para poder normalizar las entradas
@@ -110,7 +111,7 @@ public class Entrenamiento {
         //En este link hay un ejemplo de encog con imagenes 
         //https://github.com/encog/encog-java-examples/blob/master/src/main/java/org/encog/examples/neural/image/ImageNeuralNetwork.java
         n.initEntrenamientoResilentPropagation();
-        System.out.println(">>>ENTRENANDO Bebes<<<");
+        System.out.println(">>ENTRENANDO NINIOS<<");
         n.entrenarResilentPropagation();
         System.out.println("Entrenando<ok>");
         System.out.println("Guardando...");

@@ -75,7 +75,7 @@ public class RNEvalutiva {
     }
     public final void initEntrenamientoResilentPropagation() {
         eResilentPropagation = new ResilientPropagation(getN(), traningSet);
-        eResilentPropagation.addStrategy(new ResetStrategy(0.25, 50));
+        //eResilentPropagation.addStrategy(new ResetStrategy(0.25, 50));
     }
 
     public void addEntrada(Image img, MLData salidaIdeal) {
@@ -105,7 +105,7 @@ public class RNEvalutiva {
     }
     
     public void entrenarResilentPropagation(){
-        EncogUtility.trainConsole(eResilentPropagation, getN(), traningSet, 10);
+        EncogUtility.trainConsole(eResilentPropagation, getN(), traningSet, 20);
     }
 
     public MLData clasificar(Image img) {
@@ -129,7 +129,7 @@ public class RNEvalutiva {
             }
             pat += System.getProperty("file.separator") + nomRN + ".eg";
         }
-        getN().getFlat().setWeights(getEe().getPob().getMejor().getCromosoma());
+        //getN().getFlat().setWeights(getEe().getPob().getMejor().getCromosoma());
         EncogDirectoryPersistence.saveObject(new File(pat), getN());
     }
 
