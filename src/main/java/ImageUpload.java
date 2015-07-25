@@ -97,7 +97,7 @@ public class ImageUpload extends HttpServlet {
             salida.close();
             entrada.close();
             
-            preproceso.ejecutarScript(Util.d+"WebAppSexEdad"+Util.d+"Recursos"+Util.d+"Nombre del sript");
+            preproceso.ejecutarScript(Util.d+"WebAppSexEdad"+Util.d+"Recursos"+Util.d+"Preprocesamiento.py", "imgCargada.jpg");
             
             Image img = ImageIO.read(
                     new File(Util.d+"WebAppSexEdad"+Util.d+"Recursos"+Util.d+"imgCargada.jpg"));
