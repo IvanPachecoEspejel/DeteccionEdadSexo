@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 import org.encog.ml.data.MLData;
 
 /**
@@ -60,13 +61,13 @@ public class ControladorGUI {
     public void clasificar(APP_DESK ventana, File imagen) {
         String edad;
         boolean sexo;
-        
-        preproceso.ejecutarScript(rootDir + fseparador+"Recursos" + fseparador + "crear.py", "IMG_PROC.jpg");
+        // obtener imagen 50px b/n  con rostro de persona
+        preproceso.ejecutarScript(rootDir + fseparador+"Recursos" + fseparador + "Preprocesamiento.pyc", imagen.getAbsolutePath());
         
         Image img;
 
         try {
-            img = ImageIO.read(new File(imagen.getAbsolutePath())); //rootDir + fseparador+"Recursos" + fseparador + "IMG_PROC.jpg"
+            img = ImageIO.read(new File(imagen.getAbsolutePath())); //rootDir + fseparador+"Recursos" + fseparador + "imgCargada.jpg"
             isHM = clasHM.clasificar(img);
             resulEdad[0] = clasBB.clasificar(img);
             resulEdad[1] = clasNN.clasificar(img);
@@ -75,6 +76,8 @@ public class ControladorGUI {
             resulEdad[4] = clasVJ.clasificar(img);
         } catch (IOException ex) {
             System.out.println("Error al abrir imagen");
+            JOptionPane.showMessageDialog(ventana, "No se reconoce un rostro en la imagen, intentelo de nuevo por favor");
+            return;
         }
         if (isHM.getData(0) > 0) {
             sexo = false;
