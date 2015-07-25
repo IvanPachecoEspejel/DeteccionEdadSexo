@@ -8,15 +8,14 @@ import sys
 from sys import argv
 import os
 
-if(len(argv)<4):
-    print ""
-    print "Argumetos:  path nombreRSal clasificadorXML"
-    print ""
-    exit()
-
+#if(len(argv)<4):
+#    print ""
+#    print "Argumetos:  path nombreRSal clasificadorXML"
+#    print ""
+#    exit()
 directorioRaiz = argv[1]
-nombre         = argv[2]
-cascPath       = argv[3]
+nombre         = "imgCargada.jpg"
+cascPath       =  "haarcascade_frontalface_default.xml"
 
 print "Analizando " , directorioRaiz
 try:
@@ -41,7 +40,8 @@ try:
             #Generar imagenes de todas las caras encontradas
         for rostro in lista_carasG:
             resized_image = cv2.resize(rostro, (50, 50)) 
-            cv2.imwrite(nombre + ".jpg", resized_image)
+            #cv2.imwrite(nombre + ".jpg", resized_image)
+            cv2.imwrite(nombre, resized_image)
             numRostro+=1
             print "OK"
     else:
